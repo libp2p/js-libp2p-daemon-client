@@ -26,6 +26,15 @@ The specs for the daemon are currently housed in the go implementation. You can 
 
 ## Usage
 
+### Run a daemon process
+
+There are currently two implementations of the `libp2p-daemon`:
+
+- [js-libp2p-daemon](https://github.com/libp2p/js-libp2p-daemon)
+- [go-libp2p-daemon](https://github.com/libp2p/go-libp2p-daemon)
+
+### Interact with the daemon process using the client
+
 ```js
 const Client = require('libp2p-daemon-client')
 

@@ -15,6 +15,10 @@ const { ends } = require('./util/iterator')
 const LIMIT = 1 << 22 // 4MB
 
 class Client {
+  /**
+   * @constructor
+   * @param {String} socketPath unix socket path
+   */
   constructor (socketPath) {
     this.path = path.resolve(socketPath)
     this.server = null
@@ -149,17 +153,11 @@ class Client {
       }
     }
 
-    try {
-      const message = await this.send(request).first()
-      const response = Response.decode(message)
+    const message = await this.send(request).first()
+    const response = Response.decode(message)
 
-      if (response.type !== Response.Type.OK) {
-        throw errcode(response.ErrorResponse.msg, 'ERR_CONNECT_FAILED')
-      }
-
-      return
-    } catch (err) {
-      throw err
+    if (response.type !== Response.Type.OK) {
+      throw errcode(response.ErrorResponse.msg, 'ERR_CONNECT_FAILED')
     }
   }
 
@@ -178,21 +176,17 @@ class Client {
       type: Request.Type.IDENTIFY
     }
 
-    try {
-      const message = await this.send(request).first()
-      const response = Response.decode(message)
+    const message = await this.send(request).first()
+    const response = Response.decode(message)
 
-      if (response.type !== Response.Type.OK) {
-        throw errcode(response.ErrorResponse.msg, 'ERR_IDENTIFY_FAILED')
-      }
-
-      const peerId = PeerID.createFromBytes(response.identify.id)
-      const addrs = response.identify.addrs.map((a) => multiaddr(a))
-
-      return ({ peerId, addrs })
-    } catch (err) {
-      throw err
+    if (response.type !== Response.Type.OK) {
+      throw errcode(response.ErrorResponse.msg, 'ERR_IDENTIFY_FAILED')
     }
+
+    const peerId = PeerID.createFromBytes(response.identify.id)
+    const addrs = response.identify.addrs.map((a) => multiaddr(a))
+
+    return ({ peerId, addrs })
   }
 
   /**
@@ -204,18 +198,14 @@ class Client {
       type: Request.Type.LIST_PEERS
     }
 
-    try {
-      const message = await this.send(request).first()
-      const response = Response.decode(message)
+    const message = await this.send(request).first()
+    const response = Response.decode(message)
 
-      if (response.type !== Response.Type.OK) {
-        throw errcode(response.ErrorResponse.msg, 'ERR_LIST_PEERS_FAILED')
-      }
-
-      return response.peers.map((peer) => PeerID.createFromBytes(peer.id))
-    } catch (err) {
-      throw err
+    if (response.type !== Response.Type.OK) {
+      throw errcode(response.ErrorResponse.msg, 'ERR_LIST_PEERS_FAILED')
     }
+
+    return response.peers.map((peer) => PeerID.createFromBytes(peer.id))
   }
 }
 

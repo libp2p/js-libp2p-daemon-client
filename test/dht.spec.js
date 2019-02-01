@@ -9,6 +9,7 @@ chai.use(dirtyChai)
 chai.use(chaiBytes)
 
 const sinon = require('sinon')
+const promiseRetry = require('promise-retry')
 
 const { createDaemon } = require('libp2p-daemon/src/daemon')
 const Client = require('../src')
@@ -247,22 +248,25 @@ describe('daemon dht client', function () {
       }
 
       let result
-      let count = 0
-      let error
 
-      do {
-        error = undefined
+      // try 5 times as the peer takes a while to get in the routing table
+      return promiseRetry(async (retry, number) => {
         try {
           result = await client.dht.findPeer(identify.peerId)
         } catch (err) {
-          error = err
-        } finally {
-          count += 1
+          return retry()
         }
-      } while (count < 5 && error)
 
-      expect(result).to.exist()
-      expect(result.id.toB58String()).to.equal(identify.peerId.toB58String())
+        if (!result && number < 5) {
+          return retry()
+        }
+        Promise.resolve()
+      }).then(() => {
+        expect(result).to.exist()
+        expect(result.id.toB58String()).to.equal(identify.peerId.toB58String())
+      }).catch((err) => {
+        expect(err).to.not.exist()
+      })
     })
 
     it('should error if it gets an invalid peerId', async () => {
@@ -389,14 +393,15 @@ describe('daemon dht client', function () {
 
       await client.attach()
 
-      let result
-      try {
-        result = await client.dht.findProviders(cid)
-      } catch (err) {
-        expect(err).to.not.exist()
+      const findProviders = client.dht.findProviders(cid)
+      let providers = []
+
+      for await (const provider of findProviders) {
+        providers.push(provider)
       }
-      expect(result).to.exist()
-      expect(result.length).to.equal(0)
+
+      expect(providers).to.exist()
+      expect(providers.length).to.equal(0)
     })
 
     it('should be able to find providers', async () => {
@@ -419,16 +424,16 @@ describe('daemon dht client', function () {
         expect(err).to.not.exist()
       }
 
-      let result
-      try {
-        result = await client.dht.findProviders(cid)
-      } catch (err) {
-        expect(err).to.not.exist()
+      const findProviders = client.dht.findProviders(cid)
+      let providers = []
+
+      for await (const provider of findProviders) {
+        providers.push(provider)
       }
 
-      expect(result).to.exist()
-      expect(result[0]).to.exist()
-      expect(result[0].id.toB58String()).to.equal(identify.peerId.toB58String())
+      expect(providers).to.exist()
+      expect(providers[0]).to.exist()
+      expect(providers[0].id.toB58String()).to.equal(identify.peerId.toB58String())
     })
 
     it('should error if it gets an invalid cid', async () => {
@@ -484,14 +489,15 @@ describe('daemon dht client', function () {
 
       await client.attach()
 
-      let result
-      try {
-        result = await client.dht.getClosestPeers(key)
-      } catch (err) {
-        expect(err).to.not.exist()
+      const getClosestPeers = client.dht.getClosestPeers(key)
+      let closestPeers = []
+
+      for await (const peer of getClosestPeers) {
+        closestPeers.push(peer)
       }
-      expect(result).to.exist()
-      expect(result.length).to.equal(0)
+
+      expect(closestPeers).to.exist()
+      expect(closestPeers.length).to.equal(0)
     })
 
     it('should be able to get the closest peers', async () => {
@@ -510,7 +516,6 @@ describe('daemon dht client', function () {
       client.close()
 
       client = new Client(sock2)
-
       await client.attach()
 
       try {
@@ -519,23 +524,27 @@ describe('daemon dht client', function () {
         expect(err).to.not.exist()
       }
 
-      let result
-      let count = 0
-      let error
+      let closestPeers = []
 
-      do {
-        error = undefined
-        try {
-          result = await client.dht.getClosestPeers(key)
-        } catch (err) {
-          error = err
-        } finally {
-          count += 1
+      // try 5 times as the peer takes a while to get in the routing table
+      return promiseRetry(async (retry, number) => {
+        const getClosestPeers = client.dht.getClosestPeers(key)
+
+        closestPeers = []
+        for await (const peer of getClosestPeers) {
+          closestPeers.push(peer)
         }
-      } while (count < 5 && (error || !result.length))
 
-      expect(result).to.exist()
-      expect(result[0]).to.exist()
+        if ((!closestPeers || !closestPeers.length) && number < 5) {
+          return retry()
+        }
+        Promise.resolve()
+      }).then(() => {
+        expect(closestPeers).to.exist()
+        expect(closestPeers[0]).to.exist()
+      }).catch((err) => {
+        expect(err).to.not.exist()
+      })
     })
 
     it('should error if it gets an invalid key', async () => {
