@@ -9,7 +9,6 @@ chai.use(dirtyChai)
 chai.use(chaiBytes)
 
 const sinon = require('sinon')
-const promiseRetry = require('promise-retry')
 
 const { createDaemon } = require('libp2p-daemon/src/daemon')
 const Client = require('../src')
@@ -248,25 +247,15 @@ describe('daemon dht client', function () {
       }
 
       let result
-
-      // try 5 times as the peer takes a while to get in the routing table
-      return promiseRetry(async (retry, number) => {
+      // Retry until we hit the test timeout since dht propagation isn't instant
+      while (true) {
         try {
           result = await client.dht.findPeer(identify.peerId)
-        } catch (err) {
-          return retry()
-        }
-
-        if (!result && number < 5) {
-          return retry()
-        }
-        Promise.resolve()
-      }).then(() => {
-        expect(result).to.exist()
-        expect(result.id.toB58String()).to.equal(identify.peerId.toB58String())
-      }).catch((err) => {
-        expect(err).to.not.exist()
-      })
+          break // we've got a result, exit the loop
+        } catch (err) { /* ignore errors, we only care about the test timing out */ }
+      }
+      expect(result).to.exist()
+      expect(result.id.toB58String()).to.equal(identify.peerId.toB58String())
     })
 
     it('should error if it gets an invalid peerId', async () => {
@@ -526,25 +515,23 @@ describe('daemon dht client', function () {
 
       let closestPeers = []
 
-      // try 5 times as the peer takes a while to get in the routing table
-      return promiseRetry(async (retry, number) => {
-        const getClosestPeers = client.dht.getClosestPeers(key)
+      // Retry until we hit the test timeout since dht propagation isn't instant
+      while (true) {
+        try {
+          const getClosestPeers = client.dht.getClosestPeers(key)
 
-        closestPeers = []
-        for await (const peer of getClosestPeers) {
-          closestPeers.push(peer)
-        }
+          closestPeers = []
+          for await (const peer of getClosestPeers) {
+            closestPeers.push(peer)
+          }
 
-        if ((!closestPeers || !closestPeers.length) && number < 5) {
-          return retry()
-        }
-        Promise.resolve()
-      }).then(() => {
-        expect(closestPeers).to.exist()
-        expect(closestPeers[0]).to.exist()
-      }).catch((err) => {
-        expect(err).to.not.exist()
-      })
+          if (closestPeers && closestPeers.length) {
+            break // we've got a result, exit the loop
+          }
+        } catch (err) { /* ignore errors, we only care about the test timing out */ }
+      }
+      expect(closestPeers).to.exist()
+      expect(closestPeers[0]).to.exist()
     })
 
     it('should error if it gets an invalid key', async () => {
