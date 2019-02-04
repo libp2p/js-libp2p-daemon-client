@@ -1,0 +1,51 @@
+{
+    "name": "libp2p-daemon-client",
+    "version": "0.0.0",
+    "description": "libp2p-daemon client implementation",
+    "leadMaintainer": "Vasco Santos <santos.vasco10@gmail.com>",
+    "files": [
+        "dist",
+        "src"
+    ],
+    "main": "index.js",
+    "scripts": {
+        "lint": "aegir lint",
+        "build": "aegir build",
+        "test": "aegir test -t node",
+        "test:node": "aegir test -t node",
+        "release": "aegir release -t node",
+        "release-minor": "aegir release --type minor -t node",
+        "release-major": "aegir release --type major -t node",
+        "coverage": "aegir coverage",
+        "coverage-publish": "aegir coverage --provider coveralls"
+    },
+    "engines": {
+        "node": ">=10.0.0",
+        "npm": ">=6.0.0"
+    },
+    "bugs": {
+        "url": "https://github.com/libp2p/js-libp2p-daemon-client/issues"
+    },
+    "homepage": "https://github.com/libp2p/js-libp2p-daemon-client",
+    "keywords": [
+        "libp2p"
+    ],
+    "license": "MIT",
+    "devDependencies": {
+        "aegir": "^17.1.1",
+        "chai": "^4.2.0",
+        "chai-bytes": "~0.1.2",
+        "dirty-chai": "^2.0.1",
+        "mocha": "^5.2.0",
+        "sinon": "^7.2.2"
+    },
+    "dependencies": {
+        "cids": "~0.5.6",
+        "err-code": "^1.1.2",
+        "length-prefixed-stream": "github:jacobheun/length-prefixed-stream#v2.0.0-rc.1",
+        "libp2p-daemon": "~0.1.0",
+        "multiaddr": "^6.0.0",
+        "peer-id": "~0.12.0",
+        "peer-info": "~0.15.0"
+    }
+}
