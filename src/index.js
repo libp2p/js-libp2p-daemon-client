@@ -148,7 +148,7 @@ class Client {
     const request = {
       type: Request.Type.CONNECT,
       connect: {
-        peer: Buffer.from(peerId.toB58String()),
+        peer: peerId.toBytes(),
         addrs: addrs.map((a) => a.buffer)
       }
     }
