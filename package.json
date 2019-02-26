@@ -38,12 +38,12 @@
     "sinon": "^7.2.2"
   },
   "dependencies": {
-    "cids": "~0.5.6",
+    "cids": "~0.5.7",
     "err-code": "^1.1.2",
     "length-prefixed-stream": "github:jacobheun/length-prefixed-stream#v2.0.0-rc.1",
-    "libp2p-daemon": "~0.1.3",
-    "multiaddr": "^6.0.0",
-    "peer-id": "~0.12.0",
-    "peer-info": "~0.15.0"
+    "libp2p-daemon": "github:libp2p/js-libp2p-daemon#feat/multiaddr-listen",
+    "multiaddr": "^6.0.5",
+    "peer-id": "~0.12.2",
+    "peer-info": "~0.15.1"
   }
 }

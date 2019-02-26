@@ -2,6 +2,7 @@
 
 const os = require('os')
 const path = require('path')
+const ma = require('multiaddr')
 const isWindows = Boolean(os.type().match(/windows/gi))
 
 exports.getSockPath = (sockPath) => isWindows
@@ -9,3 +10,7 @@ exports.getSockPath = (sockPath) => isWindows
   : path.resolve(os.tmpdir(), sockPath)
 
 exports.isWindows = isWindows
+
+exports.getMultiaddr = (sockPath) => isWindows
+  ? ma('/ip4/0.0.0.0/tcp/8080')
+  : ma(`/unix${path.resolve(os.tmpdir(), sockPath)}`)

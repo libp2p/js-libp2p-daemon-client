@@ -17,13 +17,13 @@ const { Response } = require('libp2p-daemon/src/protocol')
 const CID = require('cids')
 const PeerID = require('peer-id')
 
-const { getSockPath } = require('./utils')
-const defaultSock = getSockPath('/tmp/p2pd.sock')
+const { getMultiaddr } = require('./utils')
+const defaultMultiaddr = getMultiaddr('/tmp/p2pd.sock')
 
 describe('daemon dht client', function () {
   this.timeout(30e3)
 
-  const daemonOpts = (sock) => ({
+  const daemonOpts = (addr) => ({
     quiet: false,
     q: false,
     bootstrap: false,
@@ -31,7 +31,7 @@ describe('daemon dht client', function () {
     dht: true,
     dhtClient: true,
     connMgr: false,
-    sock: sock || defaultSock,
+    listen: addr || defaultMultiaddr.toString(),
     id: '',
     bootstrapPeers: ''
   })
@@ -53,7 +53,7 @@ describe('daemon dht client', function () {
     })
 
     it('should be able to put a value to the dth', async function () {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -67,7 +67,7 @@ describe('daemon dht client', function () {
     })
 
     it('should error if receive an error message', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -91,7 +91,7 @@ describe('daemon dht client', function () {
     })
 
     it('should error if receive an invalid key', async function () {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -106,7 +106,7 @@ describe('daemon dht client', function () {
     })
 
     it('should error if receive an invalid value', async function () {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -142,7 +142,7 @@ describe('daemon dht client', function () {
       const key = '/key'
       const value = Buffer.from('oh hello there')
 
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -164,7 +164,7 @@ describe('daemon dht client', function () {
     })
 
     it('should error if receive an invalid key', async function () {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -177,7 +177,7 @@ describe('daemon dht client', function () {
     })
 
     it('should error if it cannot get a value', async function () {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -190,7 +190,7 @@ describe('daemon dht client', function () {
   })
 
   describe('findPeer', () => {
-    const sock2 = getSockPath('/tmp/p2pd-2.sock')
+    const addr2 = getMultiaddr('/tmp/p2pd-2.sock')
     let daemonA
     let daemonB
     let client
@@ -198,7 +198,7 @@ describe('daemon dht client', function () {
     before(function () {
       return Promise.all([
         createDaemon(daemonOpts()),
-        createDaemon(daemonOpts(sock2))
+        createDaemon(daemonOpts(addr2.toString()))
       ]).then((res) => {
         daemonA = res[0]
         daemonB = res[1]
@@ -222,7 +222,7 @@ describe('daemon dht client', function () {
     })
 
     it('should be able to find a peer', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -236,7 +236,7 @@ describe('daemon dht client', function () {
       // close first client
       client.close()
 
-      client = new Client(sock2)
+      client = new Client(addr2)
 
       await client.attach()
 
@@ -259,7 +259,7 @@ describe('daemon dht client', function () {
     })
 
     it('should error if it gets an invalid peerId', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -274,7 +274,7 @@ describe('daemon dht client', function () {
     it('should error if it cannot find the peer', async () => {
       PeerID.create({ bits: 512 }, async (err, peerId) => {
         expect(err).to.not.exist()
-        client = new Client(defaultSock)
+        client = new Client(defaultMultiaddr)
 
         await client.attach()
 
@@ -308,7 +308,7 @@ describe('daemon dht client', function () {
     it('should be able to provide', async () => {
       const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
 
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -322,7 +322,7 @@ describe('daemon dht client', function () {
     it('should error if receive an error message', async () => {
       const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
 
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -346,7 +346,7 @@ describe('daemon dht client', function () {
     })
 
     it('should error if it gets an invalid cid', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -378,7 +378,7 @@ describe('daemon dht client', function () {
 
     it('should receive empty providers if no provider for the cid exists', async () => {
       const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp39')
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -396,7 +396,7 @@ describe('daemon dht client', function () {
     it('should be able to find providers', async () => {
       const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
 
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -426,7 +426,7 @@ describe('daemon dht client', function () {
     })
 
     it('should error if it gets an invalid cid', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -440,7 +440,7 @@ describe('daemon dht client', function () {
   })
 
   describe('getClosestPeers', () => {
-    const sock2 = getSockPath('/tmp/p2pd-2.sock')
+    const addr2 = getMultiaddr('/tmp/p2pd-2.sock')
     let daemonA
     let daemonB
     let client
@@ -450,7 +450,7 @@ describe('daemon dht client', function () {
     before(function () {
       return Promise.all([
         createDaemon(daemonOpts()),
-        createDaemon(daemonOpts(sock2))
+        createDaemon(daemonOpts(addr2.toString()))
       ]).then((res) => {
         daemonA = res[0]
         daemonB = res[1]
@@ -474,7 +474,7 @@ describe('daemon dht client', function () {
     })
 
     it('should get an empty array if it does not know any peer', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -490,7 +490,7 @@ describe('daemon dht client', function () {
     })
 
     it('should be able to get the closest peers', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -504,7 +504,7 @@ describe('daemon dht client', function () {
       // close first client
       client.close()
 
-      client = new Client(sock2)
+      client = new Client(addr2)
       await client.attach()
 
       try {
@@ -535,7 +535,7 @@ describe('daemon dht client', function () {
     })
 
     it('should error if it gets an invalid key', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -549,7 +549,7 @@ describe('daemon dht client', function () {
   })
 
   describe('getPublicKey', () => {
-    const sock2 = getSockPath('/tmp/p2pd-2.sock')
+    const addr2 = getMultiaddr('/tmp/p2pd-2.sock')
     let daemonA
     let daemonB
     let client
@@ -557,7 +557,7 @@ describe('daemon dht client', function () {
     before(function () {
       return Promise.all([
         createDaemon(daemonOpts()),
-        createDaemon(daemonOpts(sock2))
+        createDaemon(daemonOpts(addr2.toString()))
       ]).then((res) => {
         daemonA = res[0]
         daemonB = res[1]
@@ -581,7 +581,7 @@ describe('daemon dht client', function () {
     })
 
     it('should be able to get the public key', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -595,7 +595,7 @@ describe('daemon dht client', function () {
       // close first client
       client.close()
 
-      client = new Client(sock2)
+      client = new Client(addr2)
 
       await client.attach()
 
@@ -619,7 +619,7 @@ describe('daemon dht client', function () {
     it('should error if it cannot find the peer', async () => {
       PeerID.create({ bits: 512 }, async (err, peerId) => {
         expect(err).to.not.exist()
-        client = new Client(defaultSock)
+        client = new Client(defaultMultiaddr)
 
         await client.attach()
 
@@ -632,7 +632,7 @@ describe('daemon dht client', function () {
     })
 
     it('should error if it receives an invalid peerId', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
