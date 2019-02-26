@@ -32,6 +32,17 @@ describe('daemon client', function () {
     bootstrapPeers: ''
   })
 
+  it('should be able to start a server', async () => {
+    const client1 = new Client(getMultiaddr('/tmp/p2pd.sock'))
+    const client2 = new Client(getMultiaddr('/tmp/p2pd2.sock'))
+
+    await client1.startServer(getMultiaddr('/tmp/p2pd2.sock'), (conn) => conn.pipe(conn))
+
+    await client2.attach()
+    await client2.close()
+    await client1.stopServer()
+  })
+
   describe('identify', () => {
     let daemon
     let client
