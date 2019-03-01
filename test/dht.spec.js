@@ -130,8 +130,8 @@ describe('daemon dht client', function () {
       await daemon.start()
     })
 
-    after(() => {
-      return daemon.stop()
+    after(async () => {
+      await daemon.stop()
     })
 
     afterEach(async () => {
@@ -190,28 +190,25 @@ describe('daemon dht client', function () {
   })
 
   describe('findPeer', () => {
-    const addr2 = getMultiaddr('/tmp/p2pd-2.sock')
+    const addr2 = getMultiaddr('/tmp/p2pd-2.sock', 9090)
     let daemonA
     let daemonB
     let client
 
-    before(function () {
-      return Promise.all([
+    before(async function () {
+      [daemonA, daemonB] = await Promise.all([
         createDaemon(daemonOpts()),
         createDaemon(daemonOpts(addr2.toString()))
-      ]).then((res) => {
-        daemonA = res[0]
-        daemonB = res[1]
+      ])
 
-        return Promise.all([
-          daemonA.start(),
-          daemonB.start()
-        ])
-      })
+      await Promise.all([
+        daemonA.start(),
+        daemonB.start()
+      ])
     })
 
-    after(function () {
-      return Promise.all([
+    after(async function () {
+      await Promise.all([
         daemonA.stop(),
         daemonB.stop()
       ])
@@ -234,7 +231,7 @@ describe('daemon dht client', function () {
       }
 
       // close first client
-      client.close()
+      await client.close()
 
       client = new Client(addr2)
 
@@ -297,8 +294,8 @@ describe('daemon dht client', function () {
       await daemon.start()
     })
 
-    after(() => {
-      return daemon.stop()
+    after(async () => {
+      await daemon.stop()
     })
 
     afterEach(async () => {
@@ -341,8 +338,6 @@ describe('daemon dht client', function () {
       } finally {
         stub.restore()
       }
-
-      await client.close()
     })
 
     it('should error if it gets an invalid cid', async () => {
@@ -368,8 +363,8 @@ describe('daemon dht client', function () {
       await daemon.start()
     })
 
-    after(() => {
-      return daemon.stop()
+    after(async () => {
+      await daemon.stop()
     })
 
     afterEach(async () => {
@@ -440,30 +435,27 @@ describe('daemon dht client', function () {
   })
 
   describe('getClosestPeers', () => {
-    const addr2 = getMultiaddr('/tmp/p2pd-2.sock')
+    const addr2 = getMultiaddr('/tmp/p2pd-2.sock', 9090)
     let daemonA
     let daemonB
     let client
 
     const key = 'foobar'
 
-    before(function () {
-      return Promise.all([
+    before(async function () {
+      [daemonA, daemonB] = await Promise.all([
         createDaemon(daemonOpts()),
         createDaemon(daemonOpts(addr2.toString()))
-      ]).then((res) => {
-        daemonA = res[0]
-        daemonB = res[1]
+      ])
 
-        return Promise.all([
-          daemonA.start(),
-          daemonB.start()
-        ])
-      })
+      await Promise.all([
+        daemonA.start(),
+        daemonB.start()
+      ])
     })
 
-    after(function () {
-      return Promise.all([
+    after(async function () {
+      await Promise.all([
         daemonA.stop(),
         daemonB.stop()
       ])
@@ -502,7 +494,7 @@ describe('daemon dht client', function () {
       }
 
       // close first client
-      client.close()
+      await client.close()
 
       client = new Client(addr2)
       await client.attach()
@@ -549,24 +541,21 @@ describe('daemon dht client', function () {
   })
 
   describe('getPublicKey', () => {
-    const addr2 = getMultiaddr('/tmp/p2pd-2.sock')
+    const addr2 = getMultiaddr('/tmp/p2pd-2.sock', 9090)
     let daemonA
     let daemonB
     let client
 
-    before(function () {
-      return Promise.all([
+    before(async function () {
+      [daemonA, daemonB] = await Promise.all([
         createDaemon(daemonOpts()),
         createDaemon(daemonOpts(addr2.toString()))
-      ]).then((res) => {
-        daemonA = res[0]
-        daemonB = res[1]
+      ])
 
-        return Promise.all([
-          daemonA.start(),
-          daemonB.start()
-        ])
-      })
+      await Promise.all([
+        daemonA.start(),
+        daemonB.start()
+      ])
     })
 
     after(function () {
@@ -593,7 +582,7 @@ describe('daemon dht client', function () {
       }
 
       // close first client
-      client.close()
+      await client.close()
 
       client = new Client(addr2)
 

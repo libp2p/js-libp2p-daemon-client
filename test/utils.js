@@ -11,6 +11,6 @@ exports.getSockPath = (sockPath) => isWindows
 
 exports.isWindows = isWindows
 
-exports.getMultiaddr = (sockPath) => isWindows
-  ? ma('/ip4/0.0.0.0/tcp/8080')
+exports.getMultiaddr = (sockPath, port) => isWindows
+  ? ma(`/ip4/0.0.0.0/tcp/${port || 8080}`)
   : ma(`/unix${path.resolve(os.tmpdir(), sockPath)}`)

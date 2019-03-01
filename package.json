@@ -41,7 +41,7 @@
     "cids": "~0.5.7",
     "err-code": "^1.1.2",
     "length-prefixed-stream": "github:jacobheun/length-prefixed-stream#v2.0.0-rc.1",
-    "libp2p-daemon": "github:libp2p/js-libp2p-daemon#feat/multiaddr-listen",
+    "libp2p-daemon": "github:libp2p/js-libp2p-daemon#master",
     "multiaddr": "^6.0.5",
     "peer-id": "~0.12.2",
     "peer-info": "~0.15.1"
