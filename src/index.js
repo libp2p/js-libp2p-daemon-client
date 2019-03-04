@@ -9,6 +9,7 @@ const { Request, Response } = require('libp2p-daemon/src/protocol')
 const errcode = require('err-code')
 
 const DHT = require('./dht')
+const Pubsub = require('./pubsub')
 const { ends } = require('./util/iterator')
 const { multiaddrToNetConfig } = require('./util')
 
@@ -31,6 +32,7 @@ class Client {
       this.close()
     })
     this.dht = new DHT(this)
+    this.pubsub = new Pubsub(this)
   }
 
   /**
