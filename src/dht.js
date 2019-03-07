@@ -169,14 +169,7 @@ class DHT {
 
     const stream = this._client.send(request)
 
-    // stream begin message
-    const message = await stream.first()
-    let response = Response.decode(message)
-
-    if (response.type !== Response.Type.OK) {
-      stream.end()
-      throw errcode(response.error.msg, 'ERR_DHT_FIND_PROVIDERS_FAILED')
-    }
+    let response
 
     // message stream
     for await (const message of stream) {
@@ -189,7 +182,14 @@ class DHT {
       }
 
       // Stream values
-      if (response.type === DHTResponse.Type.VALUE) {
+      if (response.type === DHTResponse.Type.BEGIN) {
+        response = Response.decode(message)
+
+        if (response.type !== Response.Type.OK) {
+          stream.end()
+          throw errcode(response.error.msg, 'ERR_DHT_FIND_PROVIDERS_FAILED')
+        }
+      } else if (response.type === DHTResponse.Type.VALUE) {
         const peerId = PeerID.createFromBytes(response.peer.id)
         const peerInfo = new PeerInfo(peerId)
 
