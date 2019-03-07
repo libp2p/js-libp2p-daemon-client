@@ -6,6 +6,8 @@
 * [`connect`](#connect)
 * [`identify`](#identify)
 * [`listPeers`](#listPeers)
+* [`openStream`](#openStream)
+* [`registerStream`](#registerStream)
 * [`dht.put`](#dht.put)
 * [`dht.get`](#dht.get)
 * [`dht.findPeer`](#dht.findPeer)
@@ -29,7 +31,6 @@ Create a new daemon client, using a unix socket.
 #### Returns
 
 Client instance
-
 
 #### Example
 
@@ -179,6 +180,68 @@ try {
 } catch (err) {
   // 
 }
+```
+
+## openStream
+
+Initiate an outbound stream to a peer on one of a set of protocols.
+
+### `client.openStream(peerId, protocol)`
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| peerId | [`PeerId`](https://github.com/libp2p/js-peer-id) | peer ID to connect |
+| protocol | `string` | protocol to use |
+
+#### Returns
+
+| Type | Description |
+|------|-------------|
+| `Socket` | socket to write data |
+
+#### Example
+
+```js
+const protocol = '/protocol/1.0.0'
+const client = new Client(defaultSock)
+
+await client.attach()
+
+let socket
+
+try {
+  socket = await client.openStream(peerId, protocol)
+} catch (err) {
+  //
+}
+
+socket.write(Buffer.from('data'))
+```
+
+## registerStreamHandler
+
+Register a handler for inbound streams on a given protocol.
+
+### `client.registerStreamHandler(path, protocol)`
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| path | `string` | socket path |
+| protocol | `string` | protocol to use |
+
+#### Example
+
+```js
+const protocol = '/protocol/1.0.0'
+const client = new Client(defaultSock)
+
+await client.attach()
+
+await client.registerStreamHandler(path, protocol)
 ```
 
 ## dht.put

@@ -207,6 +207,71 @@ class Client {
 
     return response.peers.map((peer) => PeerID.createFromBytes(peer.id))
   }
+
+  /**
+   * Initiate an outbound stream to a peer on one of a set of protocols.
+   * @param {PeerId} peerId
+   * @param {string} protocol
+   * @returns {Socket} socket
+   */
+  async openStream (peerId, protocol) {
+    if (!PeerID.isPeerId(peerId)) {
+      throw errcode('invalid peer id received', 'ERR_INVALID_PEER_ID')
+    }
+
+    if (typeof protocol !== 'string') {
+      throw errcode('invalid protocol received', 'ERR_INVALID_PROTOCOL')
+    }
+
+    const request = {
+      type: Request.Type.STREAM_OPEN,
+      streamOpen: {
+        peer: Buffer.from(peerId.toB58String()),
+        proto: [protocol]
+      }
+    }
+
+    const message = await this.send(request).first()
+    const response = Response.decode(message)
+
+    if (response.type !== Response.Type.OK) {
+      throw errcode(response.ErrorResponse.msg, 'ERR_OPEN_STREAM_FAILED')
+    }
+
+    return this.socket
+  }
+
+  /**
+   * Register a handler for inbound streams on a given protocol
+   *
+   * @param {string} path
+   * @param {string} protocol
+   */
+  async registerStreamHandler (path, protocol) {
+    if (typeof path !== 'string') {
+      throw errcode('invalid path received', 'ERR_INVALID_PATH')
+    }
+
+    if (typeof protocol !== 'string') {
+      throw errcode('invalid protocol received', 'ERR_INVALID_PROTOCOL')
+    }
+
+    const request = {
+      type: Request.Type.STREAM_HANDLER,
+      streamOpen: null,
+      streamHandler: {
+        path,
+        proto: [protocol]
+      }
+    }
+
+    const message = await this.send(request).first()
+    const response = Response.decode(message)
+
+    if (response.type !== Response.Type.OK) {
+      throw errcode(response.ErrorResponse.msg, 'ERR_REGISTER_STREAM_HANDLER_FAILED')
+    }
+  }
 }
 
 module.exports = Client
