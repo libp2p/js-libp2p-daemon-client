@@ -7,3 +7,5 @@ const isWindows = Boolean(os.type().match(/windows/gi))
 exports.getSockPath = (sockPath) => isWindows
   ? path.join('\\\\?\\pipe', sockPath)
   : path.resolve(os.tmpdir(), sockPath)
+
+exports.isWindows = isWindows
