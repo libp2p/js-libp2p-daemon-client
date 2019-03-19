@@ -27,6 +27,9 @@ class Client {
       writable: true,
       allowHalfOpen: true
     })
+    this.socket.on('error', (err) => {
+      console.log(err)
+    })
     this.dht = new DHT(this)
   }
 
