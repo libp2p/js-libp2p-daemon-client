@@ -94,6 +94,7 @@ class Client {
     await this.stopServer()
 
     return new Promise((resolve) => {
+      if (this.socket.destroyed) return resolve()
       this.socket.end(resolve)
     })
   }
