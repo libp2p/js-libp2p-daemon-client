@@ -12,19 +12,19 @@ const Client = require('../src')
 const { StreamInfo } = require('libp2p-daemon/src/protocol')
 
 const { ends } = require('../src/util/iterator')
-const { getSockPath } = require('./utils')
-const defaultSock = getSockPath('/tmp/p2pd.sock')
+const { getMultiaddr } = require('./utils')
+const defaultMultiaddr = getMultiaddr('/tmp/p2pd.sock')
 
 describe('daemon stream client', function () {
   this.timeout(50e3)
 
-  const sock2 = getSockPath('/tmp/p2pd-2.sock')
+  const addr2 = getMultiaddr('/tmp/p2pd-2.sock', 9090)
   let daemonA
   let daemonB
   let clientA
   let clientB
 
-  const daemonOpts = (sock) => ({
+  const daemonOpts = (addr) => ({
     quiet: false,
     q: false,
     bootstrap: false,
@@ -33,28 +33,24 @@ describe('daemon stream client', function () {
     dht: false,
     dhtClient: false,
     connMgr: false,
-    sock: sock || defaultSock,
+    listen: addr || defaultMultiaddr.toString(),
     id: '',
     bootstrapPeers: ''
   })
 
-  before(function () {
-    return Promise.all([
+  before(async () => {
+    [daemonA, daemonB] = await Promise.all([
       createDaemon(daemonOpts()),
-      createDaemon(daemonOpts(sock2))
-    ]).then((res) => {
-      daemonA = res[0]
-      daemonB = res[1]
-
-      return Promise.all([
-        daemonA.start(),
-        daemonB.start()
-      ])
-    })
+      createDaemon(daemonOpts(addr2))
+    ])
+    await Promise.all([
+      daemonA.start(),
+      daemonB.start()
+    ])
   })
 
   after(async function () {
-    return Promise.all([
+    await Promise.all([
       daemonA.stop(),
       daemonB.stop()
     ])
@@ -69,10 +65,10 @@ describe('daemon stream client', function () {
   it('should be able to open a stream, write to it and a stream handler, should handle the message', async () => {
     const data = Buffer.from('test-data')
     const protocol = '/protocol/1.0.0'
-    const socketPath = getSockPath('/tmp/p2p-protocol-handler.sock')
+    const socketAddr = getMultiaddr('/tmp/p2p-protocol-handler.sock', 9091)
 
-    clientA = new Client(defaultSock)
-    clientB = new Client(sock2)
+    clientA = new Client(defaultMultiaddr)
+    clientB = new Client(addr2)
 
     await Promise.all([
       clientA.attach(),
@@ -99,8 +95,8 @@ describe('daemon stream client', function () {
       expect(err).to.not.exist()
     }
 
-    return new Promise(async (resolve) => {
-      await clientB.startServer(socketPath, async (conn) => {
+    await new Promise(async (resolve) => {
+      await clientB.startServer(socketAddr, async (conn) => {
         // Decode the stream
         const dec = decode()
         conn.pipe(dec)
@@ -120,7 +116,7 @@ describe('daemon stream client', function () {
       })
 
       // register an handler for inboud stream
-      await clientB.registerStreamHandler(socketPath, protocol)
+      await clientB.registerStreamHandler(socketAddr, protocol)
 
       // open an outbound stream in client A and write to it
       const connA = await clientA.openStream(identifyB.peerId, protocol)
@@ -144,8 +140,8 @@ describe('daemon stream client', function () {
   })
 
   it('should error if openStream receives an invalid protocol', async () => {
-    clientA = new Client(defaultSock)
-    clientB = new Client(sock2)
+    clientA = new Client(defaultMultiaddr)
+    clientB = new Client(addr2)
 
     await Promise.all([
       clientA.attach(),
@@ -176,15 +172,15 @@ describe('daemon stream client', function () {
       await clientA.registerStreamHandler(null, 'protocol')
     } catch (err) {
       expect(err).to.exist()
-      expect(err.code).to.equal('ERR_INVALID_PATH')
+      expect(err.code).to.equal('ERR_INVALID_MULTIADDR')
     }
   })
 
   it('should error if registerStreamHandler receives an invalid protocol', async () => {
-    const socketPath = getSockPath('/tmp/p2p-protocol-handler.sock')
+    const socketAddr = getMultiaddr('/tmp/p2p-protocol-handler.sock', 9091)
 
     try {
-      await clientA.registerStreamHandler(socketPath, null)
+      await clientA.registerStreamHandler(socketAddr, null)
     } catch (err) {
       expect(err).to.exist()
       expect(err.code).to.equal('ERR_INVALID_PROTOCOL')

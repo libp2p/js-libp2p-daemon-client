@@ -249,12 +249,12 @@ class Client {
   /**
    * Register a handler for inbound streams on a given protocol
    *
-   * @param {string} path
+   * @param {Multiaddr} addr
    * @param {string} protocol
    */
-  async registerStreamHandler (path, protocol) {
-    if (typeof path !== 'string') {
-      throw errcode('invalid path received', 'ERR_INVALID_PATH')
+  async registerStreamHandler (addr, protocol) {
+    if (!multiaddr.isMultiaddr(addr)) {
+      throw errcode('invalid multiaddr received', 'ERR_INVALID_MULTIADDR')
     }
 
     if (typeof protocol !== 'string') {
@@ -265,7 +265,7 @@ class Client {
       type: Request.Type.STREAM_HANDLER,
       streamOpen: null,
       streamHandler: {
-        path,
+        addr: addr.buffer,
         proto: [protocol]
       }
     }
