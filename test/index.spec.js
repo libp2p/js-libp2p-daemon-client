@@ -93,6 +93,7 @@ describe('daemon client', function () {
 
       try {
         await client.identify()
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.toString()).to.equal('Error: mock error')
@@ -192,6 +193,7 @@ describe('daemon client', function () {
 
       try {
         await client.listPeers()
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_LIST_PEERS_FAILED')
@@ -283,6 +285,7 @@ describe('daemon client', function () {
 
       try {
         await client.connect(identify.peerId, identify.addrs)
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.toString()).to.equal('Error: mock error')
@@ -298,6 +301,7 @@ describe('daemon client', function () {
 
       try {
         await client.connect('peerId')
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_INVALID_PEER_ID')
@@ -325,6 +329,7 @@ describe('daemon client', function () {
 
       try {
         await client.connect(identify.peerId, 'addrs')
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_INVALID_ADDRS_TYPE')
@@ -352,6 +357,7 @@ describe('daemon client', function () {
 
       try {
         await client.connect(identify.peerId, ['addrs'])
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_NO_MULTIADDR_RECEIVED')

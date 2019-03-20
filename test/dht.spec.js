@@ -12,12 +12,12 @@ const sinon = require('sinon')
 
 const { createDaemon } = require('libp2p-daemon/src/daemon')
 const Client = require('../src')
+const { ends } = require('../src/util/iterator')
 const { Response } = require('libp2p-daemon/src/protocol')
 
 const CID = require('cids')
-const PeerID = require('peer-id')
 
-const { getMultiaddr } = require('./utils')
+const { getMultiaddr, createPeerId } = require('./utils')
 const defaultMultiaddr = getMultiaddr('/tmp/p2pd.sock')
 
 describe('daemon dht client', function () {
@@ -80,6 +80,7 @@ describe('daemon dht client', function () {
 
       try {
         await client.dht.put(key, value)
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_DHT_PUT_FAILED')
@@ -97,6 +98,7 @@ describe('daemon dht client', function () {
 
       try {
         await client.dht.put(value, value)
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_INVALID_KEY')
@@ -112,6 +114,7 @@ describe('daemon dht client', function () {
 
       try {
         await client.dht.put(key, key)
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_INVALID_VALUE')
@@ -170,6 +173,7 @@ describe('daemon dht client', function () {
 
       try {
         await client.dht.get(Buffer.from('/key'))
+        expect('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_INVALID_KEY')
@@ -183,6 +187,7 @@ describe('daemon dht client', function () {
 
       try {
         await client.dht.get('/unavailable-key')
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
       }
@@ -262,27 +267,25 @@ describe('daemon dht client', function () {
 
       try {
         await client.dht.findPeer('fake-peerId')
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_INVALID_PEER_ID')
       }
     })
 
-    it('should error if it cannot find the peer', (done) => {
-      PeerID.create({ bits: 512 }, async (err, peerId) => {
-        expect(err).to.not.exist()
-        client = new Client(defaultMultiaddr)
+    it('should error if it cannot find the peer', async () => {
+      const peerId = await createPeerId()
+      client = new Client(defaultMultiaddr)
+      await client.attach()
 
-        await client.attach()
-
-        try {
-          await client.dht.findPeer(peerId)
-        } catch (err) {
-          expect(err).to.exist()
-          expect(err.code).to.equal('ERR_DHT_FIND_PEER_FAILED')
-        }
-        done()
-      })
+      try {
+        await client.dht.findPeer(peerId)
+        expect.fail('should have thrown')
+      } catch (err) {
+        expect(err).to.exist()
+        expect(err.code).to.equal('ERR_DHT_FIND_PEER_FAILED')
+      }
     })
   })
 
@@ -333,6 +336,7 @@ describe('daemon dht client', function () {
 
       try {
         await client.dht.provide(cid)
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_DHT_PROVIDE_FAILED')
@@ -348,6 +352,7 @@ describe('daemon dht client', function () {
 
       try {
         await client.dht.provide('cid')
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_INVALID_CID')
@@ -427,7 +432,8 @@ describe('daemon dht client', function () {
       await client.attach()
 
       try {
-        await client.dht.findProviders('cid')
+        await ends(client.dht.findProviders('cid')).first()
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_INVALID_CID')
@@ -531,9 +537,9 @@ describe('daemon dht client', function () {
       client = new Client(defaultMultiaddr)
 
       await client.attach()
-
       try {
-        await client.dht.getClosestPeers(1)
+        await ends(client.dht.getClosestPeers(1)).first()
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_INVALID_KEY')
@@ -606,21 +612,19 @@ describe('daemon dht client', function () {
       expect(result).to.exist()
     })
 
-    it('should error if it cannot find the peer', (done) => {
-      PeerID.create({ bits: 512 }, async (err, peerId) => {
-        expect(err).to.not.exist()
-        client = new Client(defaultMultiaddr)
+    it('should error if it cannot find the peer', async () => {
+      let peerId = await createPeerId()
+      client = new Client(defaultMultiaddr)
 
-        await client.attach()
+      await client.attach()
 
-        try {
-          await client.dht.getPublicKey(peerId)
-        } catch (err) {
-          expect(err).to.exist()
-        } finally {
-          done()
-        }
-      })
+      try {
+        await client.dht.getPublicKey(peerId)
+        expect.fail('should have thrown')
+      } catch (err) {
+        expect(err).to.exist()
+        expect(err.code).to.eql('ERR_DHT_GET_PUBLIC_KEY_FAILED')
+      }
     })
 
     it('should error if it receives an invalid peerId', async () => {
@@ -630,6 +634,7 @@ describe('daemon dht client', function () {
 
       try {
         await client.dht.getPublicKey('fake-peerId')
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_INVALID_PEER_ID')
