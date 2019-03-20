@@ -47,17 +47,14 @@ describe('daemon client', function () {
     let daemon
     let client
 
-    before(function () {
+    before(async function () {
       let opts = daemonOpts()
-      createDaemon(opts).then((res) => {
-        daemon = res
-
-        return daemon.start()
-      })
+      daemon = await createDaemon(opts)
+      await daemon.start()
     })
 
-    after(() => {
-      return daemon.stop()
+    after(async () => {
+      await daemon.stop()
     })
 
     afterEach(async () => {
@@ -106,28 +103,25 @@ describe('daemon client', function () {
   })
 
   describe('listPeers', () => {
-    const addr2 = getMultiaddr('/tmp/p2pd-2.sock')
+    const addr2 = getMultiaddr('/tmp/p2pd-2.sock', 9090)
     let daemonA
     let daemonB
     let client
 
-    before(function () {
-      return Promise.all([
+    before(async () => {
+      [daemonA, daemonB] = await Promise.all([
         createDaemon(daemonOpts()),
         createDaemon(daemonOpts(addr2.toString()))
-      ]).then((res) => {
-        daemonA = res[0]
-        daemonB = res[1]
+      ])
 
-        return Promise.all([
-          daemonA.start(),
-          daemonB.start()
-        ])
-      })
+      await Promise.all([
+        daemonA.start(),
+        daemonB.start()
+      ])
     })
 
-    after(function () {
-      return Promise.all([
+    after(async () => {
+      await Promise.all([
         daemonA.stop(),
         daemonB.stop()
       ])
@@ -208,28 +202,24 @@ describe('daemon client', function () {
   })
 
   describe('connect', () => {
-    const addr2 = getMultiaddr('/tmp/p2pd-2.sock')
+    const addr2 = getMultiaddr('/tmp/p2pd-2.sock', 9090)
     let daemonA
     let daemonB
     let client
 
-    before(function () {
-      return Promise.all([
+    before(async () => {
+      [daemonA, daemonB] = await Promise.all([
         createDaemon(daemonOpts()),
         createDaemon(daemonOpts(addr2.toString()))
-      ]).then((res) => {
-        daemonA = res[0]
-        daemonB = res[1]
-
-        return Promise.all([
-          daemonA.start(),
-          daemonB.start()
-        ])
-      })
+      ])
+      await Promise.all([
+        daemonA.start(),
+        daemonB.start()
+      ])
     })
 
-    after(function () {
-      return Promise.all([
+    after(async () => {
+      await Promise.all([
         daemonA.stop(),
         daemonB.stop()
       ])

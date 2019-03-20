@@ -268,7 +268,7 @@ describe('daemon dht client', function () {
       }
     })
 
-    it('should error if it cannot find the peer', async () => {
+    it('should error if it cannot find the peer', (done) => {
       PeerID.create({ bits: 512 }, async (err, peerId) => {
         expect(err).to.not.exist()
         client = new Client(defaultMultiaddr)
@@ -281,6 +281,7 @@ describe('daemon dht client', function () {
           expect(err).to.exist()
           expect(err.code).to.equal('ERR_DHT_FIND_PEER_FAILED')
         }
+        done()
       })
     })
   })
@@ -546,7 +547,7 @@ describe('daemon dht client', function () {
     let daemonB
     let client
 
-    before(async function () {
+    before(async () => {
       [daemonA, daemonB] = await Promise.all([
         createDaemon(daemonOpts()),
         createDaemon(daemonOpts(addr2.toString()))
@@ -558,8 +559,8 @@ describe('daemon dht client', function () {
       ])
     })
 
-    after(function () {
-      return Promise.all([
+    after(async () => {
+      await Promise.all([
         daemonA.stop(),
         daemonB.stop()
       ])
@@ -605,7 +606,7 @@ describe('daemon dht client', function () {
       expect(result).to.exist()
     })
 
-    it('should error if it cannot find the peer', async () => {
+    it('should error if it cannot find the peer', (done) => {
       PeerID.create({ bits: 512 }, async (err, peerId) => {
         expect(err).to.not.exist()
         client = new Client(defaultMultiaddr)
@@ -616,6 +617,8 @@ describe('daemon dht client', function () {
           await client.dht.getPublicKey(peerId)
         } catch (err) {
           expect(err).to.exist()
+        } finally {
+          done()
         }
       })
     })
