@@ -2,7 +2,6 @@
 
 const net = require('net')
 const Socket = net.Socket
-const path = require('path')
 const PeerID = require('peer-id')
 const multiaddr = require('multiaddr')
 const { encode, decode } = require('length-prefixed-stream')
@@ -11,21 +10,25 @@ const errcode = require('err-code')
 
 const DHT = require('./dht')
 const { ends } = require('./util/iterator')
+const { multiaddrToNetConfig } = require('./util')
 
 const LIMIT = 1 << 22 // 4MB
 
 class Client {
   /**
    * @constructor
-   * @param {String} socketPath unix socket path
+   * @param {Multiaddr} addr Multiaddr for the client to connect to
    */
-  constructor (socketPath) {
-    this.path = path.resolve(socketPath)
+  constructor (addr) {
+    this.multiaddr = addr
     this.server = null
     this.socket = new Socket({
       readable: true,
       writable: true,
       allowHalfOpen: true
+    })
+    this.socket.on('error', (_) => {
+      this.close()
     })
     this.dht = new DHT(this)
   }
@@ -37,7 +40,8 @@ class Client {
    */
   attach () {
     return new Promise((resolve, reject) => {
-      this.socket.connect(this.path, (err) => {
+      const options = multiaddrToNetConfig(this.multiaddr)
+      this.socket.connect(options, (err) => {
         if (err) return reject(err)
         resolve()
       })
@@ -47,21 +51,21 @@ class Client {
   /**
    * Starts a server listening at `socketPath`. New connections
    * will be sent to the `connectionHandler`.
-   * @param {string} socketPath
+   * @param {Multiaddr} addr
    * @param {function(Stream)} connectionHandler
    * @returns {Promise}
    */
-  async startServer (socketPath, connectionHandler) {
+  async startServer (addr, connectionHandler) {
     if (this.server) {
       await this.stopServer()
     }
-
     return new Promise((resolve, reject) => {
       this.server = net.createServer({
         allowHalfOpen: true
       }, connectionHandler)
 
-      this.server.listen(path.resolve(socketPath), (err) => {
+      const options = multiaddrToNetConfig(addr)
+      this.server.listen(options, (err) => {
         if (err) return reject(err)
         resolve()
       })
@@ -90,6 +94,7 @@ class Client {
     await this.stopServer()
 
     return new Promise((resolve) => {
+      if (this.socket.destroyed) return resolve()
       this.socket.end(resolve)
     })
   }
@@ -244,12 +249,12 @@ class Client {
   /**
    * Register a handler for inbound streams on a given protocol
    *
-   * @param {string} path
+   * @param {Multiaddr} addr
    * @param {string} protocol
    */
-  async registerStreamHandler (path, protocol) {
-    if (typeof path !== 'string') {
-      throw errcode('invalid path received', 'ERR_INVALID_PATH')
+  async registerStreamHandler (addr, protocol) {
+    if (!multiaddr.isMultiaddr(addr)) {
+      throw errcode('invalid multiaddr received', 'ERR_INVALID_MULTIADDR')
     }
 
     if (typeof protocol !== 'string') {
@@ -260,7 +265,7 @@ class Client {
       type: Request.Type.STREAM_HANDLER,
       streamOpen: null,
       streamHandler: {
-        path,
+        addr: addr.buffer,
         proto: [protocol]
       }
     }

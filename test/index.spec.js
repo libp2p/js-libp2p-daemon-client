@@ -13,13 +13,13 @@ const { Response } = require('libp2p-daemon/src/protocol')
 
 const PeerId = require('peer-id')
 
-const { getSockPath } = require('./utils')
-const defaultSock = getSockPath('/tmp/p2pd.sock')
+const { getMultiaddr } = require('./utils')
+const defaultMultiaddr = getMultiaddr('/tmp/p2pd.sock')
 
 describe('daemon client', function () {
   this.timeout(30e3)
 
-  const daemonOpts = (sock) => ({
+  const daemonOpts = (addr) => ({
     quiet: false,
     q: false,
     bootstrap: false,
@@ -27,25 +27,34 @@ describe('daemon client', function () {
     dht: false,
     dhtClient: false,
     connMgr: false,
-    sock: sock || defaultSock,
+    listen: addr || defaultMultiaddr.toString(),
     id: '',
     bootstrapPeers: ''
+  })
+
+  it('should be able to start a server', async () => {
+    const client1 = new Client(getMultiaddr('/tmp/p2pd.sock'))
+    const client2 = new Client(getMultiaddr('/tmp/p2pd2.sock'))
+
+    await client1.startServer(getMultiaddr('/tmp/p2pd2.sock'), (conn) => conn.pipe(conn))
+
+    await client2.attach()
+    await client2.close()
+    await client1.stopServer()
   })
 
   describe('identify', () => {
     let daemon
     let client
 
-    before(function () {
-      createDaemon(daemonOpts()).then((res) => {
-        daemon = res
-
-        return daemon.start()
-      })
+    before(async function () {
+      let opts = daemonOpts()
+      daemon = await createDaemon(opts)
+      await daemon.start()
     })
 
-    after(() => {
-      return daemon.stop()
+    after(async () => {
+      await daemon.stop()
     })
 
     afterEach(async () => {
@@ -53,7 +62,7 @@ describe('daemon client', function () {
     })
 
     it('should be able to identify', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -78,12 +87,13 @@ describe('daemon client', function () {
         }
       })
 
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
       try {
         await client.identify()
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.toString()).to.equal('Error: mock error')
@@ -94,28 +104,25 @@ describe('daemon client', function () {
   })
 
   describe('listPeers', () => {
-    const sock2 = getSockPath('/tmp/p2pd-2.sock')
+    const addr2 = getMultiaddr('/tmp/p2pd-2.sock', 9090)
     let daemonA
     let daemonB
     let client
 
-    before(function () {
-      return Promise.all([
+    before(async () => {
+      [daemonA, daemonB] = await Promise.all([
         createDaemon(daemonOpts()),
-        createDaemon(daemonOpts(sock2))
-      ]).then((res) => {
-        daemonA = res[0]
-        daemonB = res[1]
+        createDaemon(daemonOpts(addr2.toString()))
+      ])
 
-        return Promise.all([
-          daemonA.start(),
-          daemonB.start()
-        ])
-      })
+      await Promise.all([
+        daemonA.start(),
+        daemonB.start()
+      ])
     })
 
-    after(function () {
-      return Promise.all([
+    after(async () => {
+      await Promise.all([
         daemonA.stop(),
         daemonB.stop()
       ])
@@ -126,7 +133,7 @@ describe('daemon client', function () {
     })
 
     it('should be able to listPeers', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -140,7 +147,7 @@ describe('daemon client', function () {
       // close first client
       client.close()
 
-      client = new Client(sock2)
+      client = new Client(addr2)
 
       await client.attach()
 
@@ -180,12 +187,13 @@ describe('daemon client', function () {
         }
       })
 
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
       try {
         await client.listPeers()
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_LIST_PEERS_FAILED')
@@ -196,28 +204,24 @@ describe('daemon client', function () {
   })
 
   describe('connect', () => {
-    const sock2 = getSockPath('/tmp/p2pd-2.sock')
+    const addr2 = getMultiaddr('/tmp/p2pd-2.sock', 9090)
     let daemonA
     let daemonB
     let client
 
-    before(function () {
-      return Promise.all([
+    before(async () => {
+      [daemonA, daemonB] = await Promise.all([
         createDaemon(daemonOpts()),
-        createDaemon(daemonOpts(sock2))
-      ]).then((res) => {
-        daemonA = res[0]
-        daemonB = res[1]
-
-        return Promise.all([
-          daemonA.start(),
-          daemonB.start()
-        ])
-      })
+        createDaemon(daemonOpts(addr2.toString()))
+      ])
+      await Promise.all([
+        daemonA.start(),
+        daemonB.start()
+      ])
     })
 
-    after(function () {
-      return Promise.all([
+    after(async () => {
+      await Promise.all([
         daemonA.stop(),
         daemonB.stop()
       ])
@@ -228,7 +232,7 @@ describe('daemon client', function () {
     })
 
     it('should be able to connect', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -242,7 +246,7 @@ describe('daemon client', function () {
       // close first client
       client.close()
 
-      client = new Client(sock2)
+      client = new Client(addr2)
 
       await client.attach()
 
@@ -254,7 +258,7 @@ describe('daemon client', function () {
     })
 
     it('should error if receive an error message', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -275,12 +279,13 @@ describe('daemon client', function () {
       // close first client
       client.close()
 
-      client = new Client(sock2)
+      client = new Client(addr2)
 
       await client.attach()
 
       try {
         await client.connect(identify.peerId, identify.addrs)
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.toString()).to.equal('Error: mock error')
@@ -290,12 +295,13 @@ describe('daemon client', function () {
     })
 
     it('should error if receive an invalid peerid', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
       try {
         await client.connect('peerId')
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_INVALID_PEER_ID')
@@ -303,7 +309,7 @@ describe('daemon client', function () {
     })
 
     it('should error if addrs received are not in an array', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -317,12 +323,13 @@ describe('daemon client', function () {
       // close first client
       client.close()
 
-      client = new Client(sock2)
+      client = new Client(addr2)
 
       await client.attach()
 
       try {
         await client.connect(identify.peerId, 'addrs')
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_INVALID_ADDRS_TYPE')
@@ -330,7 +337,7 @@ describe('daemon client', function () {
     })
 
     it('should error if any addrs received is not a multiaddr', async () => {
-      client = new Client(defaultSock)
+      client = new Client(defaultMultiaddr)
 
       await client.attach()
 
@@ -344,12 +351,13 @@ describe('daemon client', function () {
       // close first client
       client.close()
 
-      client = new Client(sock2)
+      client = new Client(addr2)
 
       await client.attach()
 
       try {
         await client.connect(identify.peerId, ['addrs'])
+        expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
         expect(err.code).to.equal('ERR_NO_MULTIADDR_RECEIVED')
