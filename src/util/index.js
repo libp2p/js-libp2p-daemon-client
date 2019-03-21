@@ -4,7 +4,7 @@ const { resolve } = require('path')
 
 /**
  * Converts the multiaddr to a nodejs NET compliant option
- * for .coonect or .listen
+ * for .connect or .listen
  * @param {Multiaddr} addr
  * @returns {string|object} A nodejs NET compliant option
  */
