@@ -142,32 +142,21 @@ describe('daemon pubsub client', function () {
       await client2.attach()
 
       // identify
-      let identify2
-      try {
-        identify2 = await client2.identify()
-      } catch (err) {
-        expect(err).to.not.exist()
-      }
+      const identify2 = await client2.identify()
 
       // connect
-      try {
-        await client1.connect(identify2.peerId, identify2.addrs)
-      } catch (err) {
-        expect(err).to.not.exist()
-      }
+      await client1.connect(identify2.peerId, identify2.addrs)
 
       const subscribeIterator = await client1.pubsub.subscribe(topic)
 
-      const subscriber = () => {
-        return new Promise(async (resolve) => {
-          for await (const message of subscribeIterator()) {
-            expect(message).to.exist()
-            expect(message.data).to.exist()
-            expect(message.data).to.equalBytes(data)
+      const subscriber = async () => {
+        for await (const message of subscribeIterator) {
+          expect(message).to.exist()
+          expect(message.data).to.exist()
+          expect(message.data).to.equalBytes(data)
 
-            resolve()
-          }
-        })
+          return
+        }
       }
 
       const publisher = async () => {

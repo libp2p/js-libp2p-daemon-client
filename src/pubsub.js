@@ -101,13 +101,13 @@ class Pubsub {
     }
 
     // stream remaining messages
-    return async function * () {
+    return (async function * () {
       for await (const message of stream) {
         response = PSMessage.decode(message)
 
         yield response
       }
-    }
+    })()
   }
 }
 
