@@ -44,6 +44,7 @@
     "libp2p-daemon": "~0.2.0",
     "multiaddr": "^6.0.5",
     "peer-id": "~0.12.2",
-    "peer-info": "~0.15.1"
+    "peer-info": "~0.15.1",
+    "stream-to-iterator": "^3.0.2-0"
   }
 }

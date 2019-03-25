@@ -15,6 +15,9 @@
 * [`dht.findProviders`](#dht.findProviders)
 * [`dht.getClosestPeers`](#dht.getClosestPeers)
 * [`dht.getPublicKey`](#dht.getPublicKey)
+* [`pubsub.getTopics`](#pubsub.getTopics)
+* [`pubsub.publish`](#pubsub.publish)
+* [`pubsub.subscribe`](#pubsub.subscribe)
 
 ## Getting started
 
@@ -471,5 +474,87 @@ try {
   publicKey = await client.dht.getPublicKey(peerId)
 } catch (err) {
   // 
+}
+```
+
+### `client.pubsub.getTopics()`
+
+#### Returns
+
+| Type | Description |
+|------|-------------|
+| `Array<String>` | topics the node is subscribed to |
+
+#### Example
+
+```js
+const client = new Client(defaultSock)
+
+await client.attach()
+
+let topics
+
+try {
+  topics = await client.pubsub.getTopics()
+} catch (err) {
+  // 
+}
+```
+
+### `client.pubsub.publish()`
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| topic | `string` | topic to publish |
+| data | `Buffer` | data to publish  |
+
+#### Returns
+
+| Type | Description |
+|------|-------------|
+| `Promise` | publish success |
+
+#### Example
+
+```js
+const topic = 'topic'
+const data = Buffer.from('data')
+const client = new Client(defaultSock)
+
+await client.attach()
+
+try {
+  await client.pubsub.publish(topic, data)
+} catch (err) {
+  // 
+}
+```
+
+### `client.pubsub.subscribe()`
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| topic | `string` | topic to subscribe |
+
+#### Returns
+
+| Type | Description |
+|------|-------------|
+| `AsyncIterator` | data published |
+
+#### Example
+
+```js
+const topic = 'topic'
+const client = new Client(defaultSock)
+
+await client.attach()
+
+for await (const msg of client.pubsub.subscribe(topic)) {
+  // msg.data - pubsub data received
 }
 ```
