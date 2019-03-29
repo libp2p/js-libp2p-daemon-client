@@ -168,42 +168,46 @@ class DHT {
     }
 
     const stream = this._client.send(request)
-
-    // stream begin message
-    const message = await stream.first()
-    let response = Response.decode(message)
-
-    if (response.type !== Response.Type.OK) {
-      stream.end()
-      throw errcode(response.error.msg, 'ERR_DHT_FIND_PROVIDERS_FAILED')
-    }
+    let response
+    let started = false
 
     // message stream
     for await (const message of stream) {
-      response = DHTResponse.decode(message)
+      if (!started) {
+        // stream begin message
+        response = Response.decode(message)
 
-      // Stream end
-      if (response.type === DHTResponse.Type.END) {
-        stream.end()
-        return
-      }
-
-      // Stream values
-      if (response.type === DHTResponse.Type.VALUE) {
-        const peerId = PeerID.createFromBytes(response.peer.id)
-        const peerInfo = new PeerInfo(peerId)
-
-        response.peer.addrs.forEach((addr) => {
-          const ma = multiaddr(addr)
-
-          peerInfo.multiaddrs.add(ma)
-        })
-
-        yield peerInfo
+        if (response.type !== Response.Type.OK) {
+          stream.end()
+          throw errcode(response.error.msg, 'ERR_DHT_FIND_PROVIDERS_FAILED')
+        }
+        started = true
       } else {
-        // Unexpected message received
-        stream.end()
-        throw errcode('unexpected message received', 'ERR_UNEXPECTED_MESSAGE_RECEIVED')
+        response = DHTResponse.decode(message)
+
+        // Stream end
+        if (response.type === DHTResponse.Type.END) {
+          stream.end()
+          return
+        }
+
+        // Stream values
+        if (response.type === DHTResponse.Type.VALUE) {
+          const peerId = PeerID.createFromBytes(response.peer.id)
+          const peerInfo = new PeerInfo(peerId)
+
+          response.peer.addrs.forEach((addr) => {
+            const ma = multiaddr(addr)
+
+            peerInfo.multiaddrs.add(ma)
+          })
+
+          yield peerInfo
+        } else {
+          // Unexpected message received
+          stream.end()
+          throw errcode('unexpected message received', 'ERR_UNEXPECTED_MESSAGE_RECEIVED')
+        }
       }
     }
   }
