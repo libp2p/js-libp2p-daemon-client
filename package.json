@@ -30,19 +30,19 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "aegir": "^17.1.1",
+    "aegir": "^18.2.1",
     "chai": "^4.2.0",
     "chai-bytes": "~0.1.2",
     "dirty-chai": "^2.0.1",
-    "mocha": "^5.2.0",
-    "sinon": "^7.2.2"
+    "mocha": "^6.1.2",
+    "sinon": "^7.3.1"
   },
   "dependencies": {
-    "cids": "~0.5.7",
+    "cids": "~0.6.0",
     "err-code": "^1.1.2",
     "length-prefixed-stream": "github:jacobheun/length-prefixed-stream#v2.0.0-rc.1",
     "libp2p-daemon": "~0.2.0",
-    "multiaddr": "^6.0.5",
+    "multiaddr": "^6.0.6",
     "peer-id": "~0.12.2",
     "peer-info": "~0.15.1",
     "stream-to-iterator": "^3.0.2-0"

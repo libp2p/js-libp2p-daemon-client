@@ -1,6 +1,11 @@
 libp2p-daemon client JavaScript implementation
 ======
 
+[![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](https://protocol.ai/)
+[![](https://img.shields.io/badge/project-libp2p-yellow.svg?style=flat-square)](http://libp2p.io/)
+[![](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23libp2p)
+[![Discourse posts](https://img.shields.io/discourse/https/discuss.libp2p.io/posts.svg)](https://discuss.libp2p.io)
+
 > A Javascript client to interact with a standalone deployment of a libp2p host, running in its own OS process. Essentially, this client allows to communicate with other peers, interact with the DHT, participate in pubsub, etc. no matter the language they are implemented with.
 
 ## Lead Maintainer
