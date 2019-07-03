@@ -164,7 +164,8 @@ class Client {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.error.msg, 'ERR_CONNECT_FAILED')
+      const errResponse = response.error || {}
+      throw errcode(errResponse.msg || 'unspecified', 'ERR_CONNECT_FAILED')
     }
   }
 
