@@ -319,6 +319,38 @@ describe('daemon client', function () {
         await expect(client.connect(identify.peerId, identify.addrs)).to.be.rejectedWith(
           'unspecified')
       })
+
+      it('should error if it receives an undefined response', async () => {
+        client = new Client(defaultMultiaddr)
+        await client.attach()
+        const identify = await client.identify()
+        client.close()
+
+        client = new Client(addr2)
+        await client.attach()
+
+        stub = sinon.stub(client, 'send').returns({
+          first: () => { return undefined }
+        })
+        await expect(client.connect(identify.peerId, identify.addrs)).to.be.rejectedWith(
+          'unspecified')
+      })
+
+      it('should error if it receives an empty response', async () => {
+        client = new Client(defaultMultiaddr)
+        await client.attach()
+        const identify = await client.identify()
+        client.close()
+
+        client = new Client(addr2)
+        await client.attach()
+
+        stub = sinon.stub(client, 'send').returns({
+          first: () => { return '' }
+        })
+        await expect(client.connect(identify.peerId, identify.addrs)).to.be.rejectedWith(
+          'unspecified')
+      })
     })
 
     it('should error if receive an invalid peerid', async () => {

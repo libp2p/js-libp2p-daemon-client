@@ -161,11 +161,14 @@ class Client {
     }
 
     const message = await this.send(request).first()
-    const response = Response.decode(message)
+    if (!message) {
+      throw errcode(new Error('unspecified'), 'ERR_CONNECT_FAILED')
+    }
 
+    const response = Response.decode(message)
     if (response.type !== Response.Type.OK) {
       const errResponse = response.error || {}
-      throw errcode(errResponse.msg || 'unspecified', 'ERR_CONNECT_FAILED')
+      throw errcode(new Error(errResponse.msg || 'unspecified'), 'ERR_CONNECT_FAILED')
     }
   }
 
