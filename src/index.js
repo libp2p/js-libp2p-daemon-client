@@ -164,7 +164,7 @@ class Client {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.ErrorResponse.msg, 'ERR_CONNECT_FAILED')
+      throw errcode(response.error.msg, 'ERR_CONNECT_FAILED')
     }
   }
 
@@ -187,7 +187,7 @@ class Client {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.ErrorResponse.msg, 'ERR_IDENTIFY_FAILED')
+      throw errcode(response.error.msg, 'ERR_IDENTIFY_FAILED')
     }
 
     const peerId = PeerID.createFromBytes(response.identify.id)
@@ -209,7 +209,7 @@ class Client {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.ErrorResponse.msg, 'ERR_LIST_PEERS_FAILED')
+      throw errcode(response.error.msg, 'ERR_LIST_PEERS_FAILED')
     }
 
     return response.peers.map((peer) => PeerID.createFromBytes(peer.id))
@@ -242,7 +242,7 @@ class Client {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.ErrorResponse.msg, 'ERR_OPEN_STREAM_FAILED')
+      throw errcode(response.error.msg, 'ERR_OPEN_STREAM_FAILED')
     }
 
     return this.socket
@@ -276,7 +276,7 @@ class Client {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.ErrorResponse.msg, 'ERR_REGISTER_STREAM_HANDLER_FAILED')
+      throw errcode(response.error.msg, 'ERR_REGISTER_STREAM_HANDLER_FAILED')
     }
   }
 }
