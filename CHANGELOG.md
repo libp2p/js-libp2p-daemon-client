@@ -1,3 +1,14 @@
+<a name="0.2.1"></a>
+## [0.2.1](https://github.com/libp2p/js-libp2p-daemon-client/compare/v0.2.0...v0.2.1) (2019-07-09)
+
+
+### Bug Fixes
+
+* **client.connect:** handle empty response ([#13](https://github.com/libp2p/js-libp2p-daemon-client/issues/13)) ([ace789d](https://github.com/libp2p/js-libp2p-daemon-client/commit/ace789d))
+* **client.connect:** handle unspecified error in response ([#12](https://github.com/libp2p/js-libp2p-daemon-client/issues/12)) ([7db681b](https://github.com/libp2p/js-libp2p-daemon-client/commit/7db681b))
+
+
+
 <a name="0.2.0"></a>
 # [0.2.0](https://github.com/libp2p/js-libp2p-daemon-client/compare/v0.1.2...v0.2.0) (2019-07-09)
 
