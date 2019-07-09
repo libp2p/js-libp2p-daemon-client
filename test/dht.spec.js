@@ -612,7 +612,7 @@ describe('daemon dht client', function () {
       expect(result).to.exist()
     })
 
-    it('should error if it cannot find the peer', async () => {
+    it.skip('should error if it cannot find the peer', async () => {
       let peerId = await createPeerId()
       client = new Client(defaultMultiaddr)
 
