@@ -82,7 +82,7 @@ describe('daemon client', function () {
     it('should error if receive an error message', async () => {
       const stub = sinon.stub(Response, 'decode').returns({
         type: 'ERROR',
-        ErrorResponse: {
+        error: {
           msg: 'mock error'
         }
       })
@@ -182,7 +182,7 @@ describe('daemon client', function () {
     it('should error if receive an error message', async () => {
       const stub = sinon.stub(Response, 'decode').returns({
         type: 'ERROR',
-        ErrorResponse: {
+        error: {
           msg: 'mock error'
         }
       })
@@ -271,7 +271,7 @@ describe('daemon client', function () {
 
       const stub = sinon.stub(Response, 'decode').returns({
         type: 'ERROR',
-        ErrorResponse: {
+        error: {
           msg: 'mock error'
         }
       })
