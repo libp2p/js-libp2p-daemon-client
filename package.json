@@ -1,6 +1,6 @@
 {
   "name": "libp2p-daemon-client",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "libp2p-daemon client implementation",
   "leadMaintainer": "Vasco Santos <santos.vasco10@gmail.com>",
   "files": [
@@ -46,5 +46,11 @@
     "peer-id": "~0.12.2",
     "peer-info": "~0.15.1",
     "stream-to-iterator": "^3.0.2-0"
-  }
+  },
+  "contributors": [
+    "Jacob Heun <jacobheun@gmail.com>",
+    "Mantas Vidutis <mantas.a.vidutis@gmail.com>",
+    "Vasco Santos <vasco.santos@moxy.studio>",
+    "Vasco Santos <vasco.santos@ua.pt>"
+  ]
 }
