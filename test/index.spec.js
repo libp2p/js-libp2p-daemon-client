@@ -5,6 +5,7 @@ const chai = require('chai')
 const dirtyChai = require('dirty-chai')
 const expect = chai.expect
 chai.use(dirtyChai)
+chai.use(require('chai-as-promised'))
 const sinon = require('sinon')
 
 const { createDaemon } = require('libp2p-daemon/src/daemon')
@@ -257,41 +258,67 @@ describe('daemon client', function () {
       }
     })
 
-    it('should error if receive an error message', async () => {
-      client = new Client(defaultMultiaddr)
+    describe('failure', () => {
+      let stub
 
-      await client.attach()
-
-      let identify
-      try {
-        identify = await client.identify()
-      } catch (err) {
-        expect(err).to.not.exist()
-      }
-
-      const stub = sinon.stub(Response, 'decode').returns({
-        type: 'ERROR',
-        error: {
-          msg: 'mock error'
+      afterEach(() => {
+        if (stub != null) {
+          stub.restore()
         }
+        stub = null
       })
 
-      // close first client
-      client.close()
+      it('should error if it receives an error with error property', async () => {
+        client = new Client(defaultMultiaddr)
+        await client.attach()
+        const identify = await client.identify()
+        client.close()
 
-      client = new Client(addr2)
+        client = new Client(addr2)
+        await client.attach()
 
-      await client.attach()
+        stub = sinon.stub(Response, 'decode').returns({
+          type: 'ERROR',
+          error: {
+            msg: 'mock error'
+          }
+        })
+        await expect(client.connect(identify.peerId, identify.addrs)).to.be.rejectedWith(
+          'mock error')
+      })
 
-      try {
-        await client.connect(identify.peerId, identify.addrs)
-        expect.fail('should have thrown')
-      } catch (err) {
-        expect(err).to.exist()
-        expect(err.toString()).to.equal('Error: mock error')
-      } finally {
-        stub.restore()
-      }
+      it('should error if it receives an error without message', async () => {
+        client = new Client(defaultMultiaddr)
+        await client.attach()
+        const identify = await client.identify()
+        client.close()
+
+        client = new Client(addr2)
+        await client.attach()
+
+        stub = sinon.stub(Response, 'decode').returns({
+          type: 'ERROR',
+          error: {}
+        })
+        await expect(client.connect(identify.peerId, identify.addrs)).to.be.rejectedWith(
+          'unspecified')
+      })
+
+      it('should error if it receives an error without details', async () => {
+        client = new Client(defaultMultiaddr)
+        await client.attach()
+        const identify = await client.identify()
+        client.close()
+
+        client = new Client(addr2)
+        await client.attach()
+
+        stub = sinon.stub(Response, 'decode').returns({
+          type: 'ERROR'
+        })
+        await expect(client.connect(identify.peerId, identify.addrs)).to.be.rejectedWith(
+          'unspecified')
+      })
     })
 
     it('should error if receive an invalid peerid', async () => {
