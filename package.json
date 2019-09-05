@@ -1,6 +1,6 @@
 {
   "name": "libp2p-daemon-client",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "libp2p-daemon client implementation",
   "leadMaintainer": "Vasco Santos <santos.vasco10@gmail.com>",
   "files": [
