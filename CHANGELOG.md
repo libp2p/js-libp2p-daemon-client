@@ -1,3 +1,8 @@
+<a name="0.2.2"></a>
+## [0.2.2](https://github.com/libp2p/js-libp2p-daemon-client/compare/v0.2.1...v0.2.2) (2019-09-05)
+
+
+
 <a name="0.2.1"></a>
 ## [0.2.1](https://github.com/libp2p/js-libp2p-daemon-client/compare/v0.2.0...v0.2.1) (2019-07-09)
 
