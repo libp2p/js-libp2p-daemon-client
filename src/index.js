@@ -139,16 +139,16 @@ class Client {
    */
   async connect (peerId, addrs) {
     if (!PeerID.isPeerId(peerId)) {
-      throw errcode('invalid peer id received', 'ERR_INVALID_PEER_ID')
+      throw errcode(new Error('invalid peer id received'), 'ERR_INVALID_PEER_ID')
     }
 
     if (!Array.isArray(addrs)) {
-      throw errcode('addrs received are not in an array', 'ERR_INVALID_ADDRS_TYPE')
+      throw errcode(new Error('addrs received are not in an array'), 'ERR_INVALID_ADDRS_TYPE')
     }
 
     addrs.forEach((addr) => {
       if (!multiaddr.isMultiaddr(addr)) {
-        throw errcode('received an address that is not a multiaddr', 'ERR_NO_MULTIADDR_RECEIVED')
+        throw errcode(new Error('received an address that is not a multiaddr'), 'ERR_NO_MULTIADDR_RECEIVED')
       }
     })
 
@@ -191,7 +191,7 @@ class Client {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.error.msg, 'ERR_IDENTIFY_FAILED')
+      throw errcode(new Error(response.error.msg), 'ERR_IDENTIFY_FAILED')
     }
 
     const peerId = PeerID.createFromBytes(response.identify.id)
@@ -213,7 +213,7 @@ class Client {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.error.msg, 'ERR_LIST_PEERS_FAILED')
+      throw errcode(new Error(response.error.msg), 'ERR_LIST_PEERS_FAILED')
     }
 
     return response.peers.map((peer) => PeerID.createFromBytes(peer.id))
@@ -227,11 +227,11 @@ class Client {
    */
   async openStream (peerId, protocol) {
     if (!PeerID.isPeerId(peerId)) {
-      throw errcode('invalid peer id received', 'ERR_INVALID_PEER_ID')
+      throw errcode(new Error('invalid peer id received'), 'ERR_INVALID_PEER_ID')
     }
 
     if (typeof protocol !== 'string') {
-      throw errcode('invalid protocol received', 'ERR_INVALID_PROTOCOL')
+      throw errcode(new Error('invalid protocol received'), 'ERR_INVALID_PROTOCOL')
     }
 
     const request = {
@@ -246,7 +246,7 @@ class Client {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.error.msg, 'ERR_OPEN_STREAM_FAILED')
+      throw errcode(new Error(response.error.msg), 'ERR_OPEN_STREAM_FAILED')
     }
 
     return this.socket
@@ -260,11 +260,11 @@ class Client {
    */
   async registerStreamHandler (addr, protocol) {
     if (!multiaddr.isMultiaddr(addr)) {
-      throw errcode('invalid multiaddr received', 'ERR_INVALID_MULTIADDR')
+      throw errcode(new Error('invalid multiaddr received'), 'ERR_INVALID_MULTIADDR')
     }
 
     if (typeof protocol !== 'string') {
-      throw errcode('invalid protocol received', 'ERR_INVALID_PROTOCOL')
+      throw errcode(new Error('invalid protocol received'), 'ERR_INVALID_PROTOCOL')
     }
 
     const request = {
@@ -280,7 +280,7 @@ class Client {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.error.msg, 'ERR_REGISTER_STREAM_HANDLER_FAILED')
+      throw errcode(new Error(response.error.msg), 'ERR_REGISTER_STREAM_HANDLER_FAILED')
     }
   }
 }

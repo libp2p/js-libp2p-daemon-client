@@ -29,11 +29,11 @@ class DHT {
    */
   async put (key, value) {
     if (typeof key !== 'string') {
-      throw errcode('invalid key received', 'ERR_INVALID_KEY')
+      throw errcode(new Error('invalid key received'), 'ERR_INVALID_KEY')
     }
 
     if (!Buffer.isBuffer(value)) {
-      throw errcode('value received is not a buffer', 'ERR_INVALID_VALUE')
+      throw errcode(new Error('value received is not a buffer'), 'ERR_INVALID_VALUE')
     }
 
     const request = {
@@ -49,7 +49,7 @@ class DHT {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.error.msg, 'ERR_DHT_PUT_FAILED')
+      throw errcode(new Error(response.error.msg), 'ERR_DHT_PUT_FAILED')
     }
   }
 
@@ -60,7 +60,7 @@ class DHT {
    */
   async get (key) {
     if (typeof key !== 'string') {
-      throw errcode('invalid key received', 'ERR_INVALID_KEY')
+      throw errcode(new Error('invalid key received'), 'ERR_INVALID_KEY')
     }
 
     const request = {
@@ -75,7 +75,7 @@ class DHT {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.error.msg, 'ERR_DHT_GET_FAILED')
+      throw errcode(new Error(response.error.msg), 'ERR_DHT_GET_FAILED')
     }
 
     return response.dht.value
@@ -88,7 +88,7 @@ class DHT {
    */
   async findPeer (peerId) {
     if (!PeerID.isPeerId(peerId)) {
-      throw errcode('invalid peer id received', 'ERR_INVALID_PEER_ID')
+      throw errcode(new Error('invalid peer id received'), 'ERR_INVALID_PEER_ID')
     }
 
     const request = {
@@ -103,23 +103,19 @@ class DHT {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.error.msg, 'ERR_DHT_FIND_PEER_FAILED')
+      throw errcode(new Error(response.error.msg), 'ERR_DHT_FIND_PEER_FAILED')
     }
 
-    try {
-      const peerId = PeerID.createFromBytes(response.dht.peer.id)
-      const peerInfo = new PeerInfo(peerId)
+    const receivedPeerId = PeerID.createFromBytes(response.dht.peer.id)
+    const peerInfo = new PeerInfo(receivedPeerId)
 
-      response.dht.peer.addrs.forEach((addr) => {
-        const ma = multiaddr(addr)
+    response.dht.peer.addrs.forEach((addr) => {
+      const ma = multiaddr(addr)
 
-        peerInfo.multiaddrs.add(ma)
-      })
+      peerInfo.multiaddrs.add(ma)
+    })
 
-      return peerInfo
-    } catch (err) {
-      throw err
-    }
+    return peerInfo
   }
 
   /**
@@ -128,7 +124,7 @@ class DHT {
    */
   async provide (cid) {
     if (!CID.isCID(cid)) {
-      throw errcode('invalid cid received', 'ERR_INVALID_CID')
+      throw errcode(new Error('invalid cid received'), 'ERR_INVALID_CID')
     }
 
     const request = {
@@ -143,7 +139,7 @@ class DHT {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.error.msg, 'ERR_DHT_PROVIDE_FAILED')
+      throw errcode(new Error(response.error.msg), 'ERR_DHT_PROVIDE_FAILED')
     }
   }
 
@@ -155,7 +151,7 @@ class DHT {
    */
   async * findProviders (cid, count = 1) {
     if (!CID.isCID(cid)) {
-      throw errcode('invalid cid received', 'ERR_INVALID_CID')
+      throw errcode(new Error('invalid cid received'), 'ERR_INVALID_CID')
     }
 
     const request = {
@@ -179,7 +175,7 @@ class DHT {
 
         if (response.type !== Response.Type.OK) {
           stream.end()
-          throw errcode(response.error.msg, 'ERR_DHT_FIND_PROVIDERS_FAILED')
+          throw errcode(new Error(response.error.msg), 'ERR_DHT_FIND_PROVIDERS_FAILED')
         }
         started = true
       } else {
@@ -206,7 +202,7 @@ class DHT {
         } else {
           // Unexpected message received
           stream.end()
-          throw errcode('unexpected message received', 'ERR_UNEXPECTED_MESSAGE_RECEIVED')
+          throw errcode(new Error('unexpected message received'), 'ERR_UNEXPECTED_MESSAGE_RECEIVED')
         }
       }
     }
@@ -219,7 +215,7 @@ class DHT {
    */
   async * getClosestPeers (key) {
     if (typeof key !== 'string') {
-      throw errcode('invalid key received', 'ERR_INVALID_KEY')
+      throw errcode(new Error('invalid key received'), 'ERR_INVALID_KEY')
     }
 
     const request = {
@@ -238,7 +234,7 @@ class DHT {
 
     if (response.type !== Response.Type.OK) {
       stream.end()
-      throw errcode(response.error.msg, 'ERR_DHT_FIND_PROVIDERS_FAILED')
+      throw errcode(new Error(response.error.msg), 'ERR_DHT_FIND_PROVIDERS_FAILED')
     }
 
     for await (const message of stream) {
@@ -257,7 +253,7 @@ class DHT {
         yield new PeerInfo(peerId)
       } else {
         // Unexpected message received
-        throw errcode('unexpected message received', 'ERR_UNEXPECTED_MESSAGE_RECEIVED')
+        throw errcode(new Error('unexpected message received'), 'ERR_UNEXPECTED_MESSAGE_RECEIVED')
       }
     }
   }
@@ -269,7 +265,7 @@ class DHT {
    */
   async getPublicKey (peerId) {
     if (!PeerID.isPeerId(peerId)) {
-      throw errcode('invalid peer id received', 'ERR_INVALID_PEER_ID')
+      throw errcode(new Error('invalid peer id received'), 'ERR_INVALID_PEER_ID')
     }
 
     const request = {
@@ -284,7 +280,7 @@ class DHT {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.error.msg, 'ERR_DHT_GET_PUBLIC_KEY_FAILED')
+      throw errcode(new Error(response.error.msg), 'ERR_DHT_GET_PUBLIC_KEY_FAILED')
     }
 
     return response.dht.value

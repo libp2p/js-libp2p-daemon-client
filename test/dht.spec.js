@@ -377,17 +377,21 @@ describe('daemon dht client', function () {
       await client && client.close()
     })
 
-    it('should receive empty providers if no provider for the cid exists', async () => {
+    it('should error if no provider for the cid exists', async () => {
       const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp39')
       client = new Client(defaultMultiaddr)
 
       await client.attach()
 
       const findProviders = client.dht.findProviders(cid)
-      let providers = []
+      const providers = []
 
-      for await (const provider of findProviders) {
-        providers.push(provider)
+      try {
+        for await (const provider of findProviders) {
+          providers.push(provider)
+        }
+      } catch (err) {
+        expect(err).to.exist()
       }
 
       expect(providers).to.exist()
@@ -415,7 +419,7 @@ describe('daemon dht client', function () {
       }
 
       const findProviders = client.dht.findProviders(cid)
-      let providers = []
+      const providers = []
 
       for await (const provider of findProviders) {
         providers.push(provider)
@@ -478,7 +482,7 @@ describe('daemon dht client', function () {
       await client.attach()
 
       const getClosestPeers = client.dht.getClosestPeers(key)
-      let closestPeers = []
+      const closestPeers = []
 
       for await (const peer of getClosestPeers) {
         closestPeers.push(peer)
@@ -613,7 +617,7 @@ describe('daemon dht client', function () {
     })
 
     it.skip('should error if it cannot find the peer', async () => {
-      let peerId = await createPeerId()
+      const peerId = await createPeerId()
       client = new Client(defaultMultiaddr)
 
       await client.attach()
