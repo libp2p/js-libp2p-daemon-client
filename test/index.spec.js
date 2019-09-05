@@ -49,7 +49,7 @@ describe('daemon client', function () {
     let client
 
     before(async function () {
-      let opts = daemonOpts()
+      const opts = daemonOpts()
       daemon = await createDaemon(opts)
       await daemon.start()
     })

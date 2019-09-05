@@ -95,15 +95,15 @@ describe('daemon stream client', function () {
       expect(err).to.not.exist()
     }
 
-    await new Promise(async (resolve) => {
-      await clientB.startServer(socketAddr, async (conn) => {
+    const promise = new Promise((resolve) => {
+      clientB.startServer(socketAddr, async (conn) => {
         // Decode the stream
         const dec = decode()
         conn.pipe(dec)
 
         // Read the stream info from the daemon, then pipe to echo
         const message = await ends(dec).first()
-        let response = StreamInfo.decode(message)
+        const response = StreamInfo.decode(message)
 
         expect(response.peer).to.eql(identifyA.peerId.toBytes())
         expect(response.proto).to.eql(protocol)
@@ -114,16 +114,18 @@ describe('daemon stream client', function () {
           resolve()
         })
       })
-
-      // register an handler for inboud stream
-      await clientB.registerStreamHandler(socketAddr, protocol)
-
-      // open an outbound stream in client A and write to it
-      const connA = await clientA.openStream(identifyB.peerId, protocol)
-
-      connA.write(data)
-      connA.end()
     })
+
+    // register an handler for inboud stream
+    await clientB.registerStreamHandler(socketAddr, protocol)
+
+    // open an outbound stream in client A and write to it
+    const connA = await clientA.openStream(identifyB.peerId, protocol)
+
+    connA.write(data)
+    connA.end()
+
+    return promise
   })
 
   it('should error if openStream receives an invalid peerId', async () => {

@@ -36,7 +36,7 @@ class Pubsub {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.error.msg, 'ERR_PUBSUB_GET_TOPICS_FAILED')
+      throw errcode(new Error(response.error.msg), 'ERR_PUBSUB_GET_TOPICS_FAILED')
     }
 
     return response.pubsub.topics
@@ -49,11 +49,11 @@ class Pubsub {
    */
   async publish (topic, data) {
     if (typeof topic !== 'string') {
-      throw errcode('invalid topic received', 'ERR_INVALID_TOPIC')
+      throw errcode(new Error('invalid topic received'), 'ERR_INVALID_TOPIC')
     }
 
     if (!Buffer.isBuffer(data)) {
-      throw errcode('data received is not a buffer', 'ERR_INVALID_DATA')
+      throw errcode(new Error('data received is not a buffer'), 'ERR_INVALID_DATA')
     }
 
     const request = {
@@ -69,7 +69,7 @@ class Pubsub {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.error.msg, 'ERR_PUBSUB_PUBLISH_FAILED')
+      throw errcode(new Error(response.error.msg), 'ERR_PUBSUB_PUBLISH_FAILED')
     }
   }
 
@@ -80,7 +80,7 @@ class Pubsub {
    */
   async subscribe (topic) {
     if (typeof topic !== 'string') {
-      throw errcode('invalid topic received', 'ERR_INVALID_TOPIC')
+      throw errcode(new Error('invalid topic received'), 'ERR_INVALID_TOPIC')
     }
 
     const request = {
@@ -93,11 +93,11 @@ class Pubsub {
 
     // stream initial message
     const stream = streamToIterator(this._client.send(request))
-    let result = await stream.next()
+    const result = await stream.next()
     let response = Response.decode(result.value)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(response.error.msg, 'ERR_PUBSUB_PUBLISH_FAILED')
+      throw errcode(new Error(response.error.msg), 'ERR_PUBSUB_PUBLISH_FAILED')
     }
 
     // stream remaining messages
