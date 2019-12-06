@@ -17,13 +17,8 @@ exports.getMultiaddr = (sockPath, port) => isWindows
   : ma(`/unix${path.resolve(os.tmpdir(), sockPath)}`)
 
 /**
- * @returns {Promise} Returns the generated `PeerId`
+ * @returns {Promise<PeerId>} Returns the generated `PeerId`
  */
 exports.createPeerId = () => {
-  return new Promise((resolve, reject) => {
-    PeerID.create({ bits: 512 }, (err, peerId) => {
-      if (err) return reject(err)
-      resolve(peerId)
-    })
-  })
+  return PeerID.create({ bits: 512 })
 }

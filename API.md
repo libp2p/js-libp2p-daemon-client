@@ -1,7 +1,6 @@
 # API
 
 * [Getting started](#getting-started)
-* [`attach`](#attach)
 * [`close`](#close)
 * [`connect`](#connect)
 * [`identify`](#identify)
@@ -46,32 +45,6 @@ const client = new Client(defaultSock)
 // client.{}
 ```
 
-## attach
-
-Connects to a daemon at the unix socket path the daemon was created with.
-
-### `client.attach()`
-
-#### Returns
-
-| Type | Description |
-|------|-------------|
-| `Promise` | Promise resolves when connection is achieved |
-
-#### Example
-
-```js
-const Client = require('libp2p-daemon-client')
-
-const defaultSock = '/tmp/p2pd.sock'
-const client = new Client(defaultSock)
-
-// connect to a daemon
-await client.attach()
-```
-
-NOTE: when attaching the client, the socket must be closed afterwards.
-
 ## close
 
 Closes the socket.
@@ -91,9 +64,6 @@ const Client = require('libp2p-daemon-client')
 
 const defaultSock = '/tmp/p2pd.sock'
 const client = new Client(defaultSock)
-
-// connect to a daemon
-await client.attach()
 
 // close the socket
 await client.close()
@@ -116,8 +86,6 @@ Requests a connection to a known peer on a given set of addresses.
 
 ```js
 const client = new Client(defaultSock)
-
-await client.attach()
 
 try {
   await client.connect(peerId, addrs)
@@ -145,8 +113,6 @@ Query the daemon for its peer ID and listen addresses.
 ```js
 const client = new Client(defaultSock)
 
-await client.attach()
-
 let identify
 
 try {
@@ -173,8 +139,6 @@ Get a list of IDs of peers the node is connected to.
 
 ```js
 const client = new Client(defaultSock)
-
-await client.attach()
 
 let identify
 
@@ -210,8 +174,6 @@ Initiate an outbound stream to a peer on one of a set of protocols.
 const protocol = '/protocol/1.0.0'
 const client = new Client(defaultSock)
 
-await client.attach()
-
 let socket
 
 try {
@@ -242,8 +204,6 @@ Register a handler for inbound streams on a given protocol.
 const protocol = '/protocol/1.0.0'
 const client = new Client(defaultSock)
 
-await client.attach()
-
 await client.registerStreamHandler(path, protocol)
 ```
 
@@ -264,8 +224,6 @@ Write a value to a key in the DHT.
 
 ```js
 const client = new Client(defaultSock)
-
-await client.attach()
 
 const key = '/key'
 const value = Buffer.from('oh hello there')
@@ -300,8 +258,6 @@ Query the DHT for a value stored through a key in the DHT.
 ```js
 const client = new Client(defaultSock)
 
-await client.attach()
-
 const key = '/key'
 let value
 
@@ -335,8 +291,6 @@ Query the DHT for a given peer's known addresses.
 ```js
 const client = new Client(defaultSock)
 
-await client.attach()
-
 let peerInfo
 
 try {
@@ -362,8 +316,6 @@ Announce that have data addressed by a given CID.
 
 ```js
 const client = new Client(defaultSock)
-
-await client.attach()
 
 try {
   await client.dht.provide(cid)
@@ -396,8 +348,6 @@ Query the DHT for peers that have a piece of content, identified by a CID.
 
 ```js
 const client = new Client(defaultSock)
-
-await client.attach()
 
 let peerInfos
 
@@ -432,8 +382,6 @@ Query the DHT routing table for peers that are closest to a provided key.
 ```js
 const client = new Client(defaultSock)
 
-await client.attach()
-
 let peerInfos
 
 try {
@@ -466,8 +414,6 @@ Query the DHT routing table for a given peer's public key.
 ```js
 const client = new Client(defaultSock)
 
-await client.attach()
-
 let publicKey
 
 try {
@@ -489,8 +435,6 @@ try {
 
 ```js
 const client = new Client(defaultSock)
-
-await client.attach()
 
 let topics
 
@@ -523,8 +467,6 @@ const topic = 'topic'
 const data = Buffer.from('data')
 const client = new Client(defaultSock)
 
-await client.attach()
-
 try {
   await client.pubsub.publish(topic, data)
 } catch (err) {
@@ -551,8 +493,6 @@ try {
 ```js
 const topic = 'topic'
 const client = new Client(defaultSock)
-
-await client.attach()
 
 for await (const msg of client.pubsub.subscribe(topic)) {
   // msg.data - pubsub data received

@@ -2,8 +2,6 @@
 
 const errcode = require('err-code')
 
-const streamToIterator = require('stream-to-iterator')
-
 const {
   Request,
   Response,
@@ -25,15 +23,17 @@ class Pubsub {
    * @returns {Array<String>} topics
    */
   async getTopics () {
-    const request = {
+    const sh = await this._client.send({
       type: Request.Type.PUBSUB,
       pubsub: {
         type: PSRequest.Type.GET_TOPICS
       }
-    }
+    })
 
-    const message = await this._client.send(request).first()
+    const message = await sh.read()
     const response = Response.decode(message)
+
+    await sh.close()
 
     if (response.type !== Response.Type.OK) {
       throw errcode(new Error(response.error.msg), 'ERR_PUBSUB_GET_TOPICS_FAILED')
@@ -56,17 +56,19 @@ class Pubsub {
       throw errcode(new Error('data received is not a buffer'), 'ERR_INVALID_DATA')
     }
 
-    const request = {
+    const sh = await this._client.send({
       type: Request.Type.PUBSUB,
       pubsub: {
         type: PSRequest.Type.PUBLISH,
         topic,
         data
       }
-    }
+    })
 
-    const message = await this._client.send(request).first()
+    const message = await sh.read()
     const response = Response.decode(message)
+
+    await sh.close()
 
     if (response.type !== Response.Type.OK) {
       throw errcode(new Error(response.error.msg), 'ERR_PUBSUB_PUBLISH_FAILED')
@@ -83,28 +85,26 @@ class Pubsub {
       throw errcode(new Error('invalid topic received'), 'ERR_INVALID_TOPIC')
     }
 
-    const request = {
+    const sh = await this._client.send({
       type: Request.Type.PUBSUB,
       pubsub: {
         type: PSRequest.Type.SUBSCRIBE,
         topic
       }
-    }
+    })
 
-    // stream initial message
-    const stream = streamToIterator(this._client.send(request))
-    const result = await stream.next()
-    let response = Response.decode(result.value)
+    let message = await sh.read()
+    let response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
       throw errcode(new Error(response.error.msg), 'ERR_PUBSUB_PUBLISH_FAILED')
     }
 
-    // stream remaining messages
+    // stream messages
     return (async function * () {
-      for await (const message of stream) {
+      while (true) {
+        message = await sh.read()
         response = PSMessage.decode(message)
-
         yield response
       }
     })()

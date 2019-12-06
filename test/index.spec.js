@@ -37,11 +37,11 @@ describe('daemon client', function () {
     const client1 = new Client(getMultiaddr('/tmp/p2pd.sock'))
     const client2 = new Client(getMultiaddr('/tmp/p2pd2.sock'))
 
-    await client1.startServer(getMultiaddr('/tmp/p2pd2.sock'), (conn) => conn.pipe(conn))
+    await client1.start(getMultiaddr('/tmp/p2pd2.sock'), () => {})
 
-    await client2.attach()
+    await client2.connectDaemon(getMultiaddr('/tmp/p2pd2.sock'))
     await client2.close()
-    await client1.stopServer()
+    await client1.close()
   })
 
   describe('identify', () => {
@@ -65,14 +65,7 @@ describe('daemon client', function () {
     it('should be able to identify', async () => {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
-      let identify
-      try {
-        identify = await client.identify()
-      } catch (err) {
-        expect(err).to.not.exist()
-      }
+      const identify = await client.identify()
 
       expect(identify).to.exist()
       expect(identify.peerId).to.exist()
@@ -89,8 +82,6 @@ describe('daemon client', function () {
       })
 
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
 
       try {
         await client.identify()
@@ -136,45 +127,23 @@ describe('daemon client', function () {
     it('should be able to listPeers', async () => {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
-      let identify
-      try {
-        identify = await client.identify()
-      } catch (err) {
-        expect(err).to.not.exist()
-      }
+      const identify = await client.identify()
 
       // close first client
-      client.close()
+      await client.close()
 
       client = new Client(addr2)
 
-      await client.attach()
-
       // list peers before connecting to a peer
-      let peers
-      try {
-        peers = await client.listPeers()
-      } catch (err) {
-        expect(err).to.not.exist()
-      }
+      let peers = await client.listPeers()
 
       expect(peers).to.exist()
       expect(peers).to.have.length(0)
 
-      try {
-        await client.connect(identify.peerId, identify.addrs)
-      } catch (err) {
-        expect(err).to.not.exist()
-      }
+      await client.connect(identify.peerId, identify.addrs)
 
       // list peers after connecting to a peer
-      try {
-        peers = await client.listPeers()
-      } catch (err) {
-        expect(err).to.not.exist()
-      }
+      peers = await client.listPeers()
 
       expect(peers).to.exist()
       expect(peers).to.have.length(1)
@@ -189,8 +158,6 @@ describe('daemon client', function () {
       })
 
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
 
       try {
         await client.listPeers()
@@ -234,28 +201,13 @@ describe('daemon client', function () {
 
     it('should be able to connect', async () => {
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
-
-      let identify
-      try {
-        identify = await client.identify()
-      } catch (err) {
-        expect(err).to.not.exist()
-      }
+      const identify = await client.identify()
 
       // close first client
-      client.close()
+      await client.close()
 
       client = new Client(addr2)
-
-      await client.attach()
-
-      try {
-        await client.connect(identify.peerId, identify.addrs)
-      } catch (err) {
-        expect(err).to.not.exist()
-      }
+      await client.connect(identify.peerId, identify.addrs)
     })
 
     describe('failure', () => {
@@ -270,12 +222,10 @@ describe('daemon client', function () {
 
       it('should error if it receives an error with error property', async () => {
         client = new Client(defaultMultiaddr)
-        await client.attach()
         const identify = await client.identify()
         client.close()
 
         client = new Client(addr2)
-        await client.attach()
 
         stub = sinon.stub(Response, 'decode').returns({
           type: 'ERROR',
@@ -289,12 +239,10 @@ describe('daemon client', function () {
 
       it('should error if it receives an error without message', async () => {
         client = new Client(defaultMultiaddr)
-        await client.attach()
         const identify = await client.identify()
         client.close()
 
         client = new Client(addr2)
-        await client.attach()
 
         stub = sinon.stub(Response, 'decode').returns({
           type: 'ERROR',
@@ -306,12 +254,10 @@ describe('daemon client', function () {
 
       it('should error if it receives an error without details', async () => {
         client = new Client(defaultMultiaddr)
-        await client.attach()
         const identify = await client.identify()
         client.close()
 
         client = new Client(addr2)
-        await client.attach()
 
         stub = sinon.stub(Response, 'decode').returns({
           type: 'ERROR'
@@ -322,15 +268,13 @@ describe('daemon client', function () {
 
       it('should error if it receives an undefined response', async () => {
         client = new Client(defaultMultiaddr)
-        await client.attach()
         const identify = await client.identify()
         client.close()
 
         client = new Client(addr2)
-        await client.attach()
 
         stub = sinon.stub(client, 'send').returns({
-          first: () => { return undefined }
+          read: () => { return undefined }
         })
         await expect(client.connect(identify.peerId, identify.addrs)).to.be.rejectedWith(
           'unspecified')
@@ -338,15 +282,13 @@ describe('daemon client', function () {
 
       it('should error if it receives an empty response', async () => {
         client = new Client(defaultMultiaddr)
-        await client.attach()
         const identify = await client.identify()
         client.close()
 
         client = new Client(addr2)
-        await client.attach()
 
         stub = sinon.stub(client, 'send').returns({
-          first: () => { return '' }
+          read: () => { return '' }
         })
         await expect(client.connect(identify.peerId, identify.addrs)).to.be.rejectedWith(
           'unspecified')
@@ -355,8 +297,6 @@ describe('daemon client', function () {
 
     it('should error if receive an invalid peerid', async () => {
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
 
       try {
         await client.connect('peerId')
@@ -370,8 +310,6 @@ describe('daemon client', function () {
     it('should error if addrs received are not in an array', async () => {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       let identify
       try {
         identify = await client.identify()
@@ -383,8 +321,6 @@ describe('daemon client', function () {
       client.close()
 
       client = new Client(addr2)
-
-      await client.attach()
 
       try {
         await client.connect(identify.peerId, 'addrs')
@@ -398,21 +334,12 @@ describe('daemon client', function () {
     it('should error if any addrs received is not a multiaddr', async () => {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
-      let identify
-      try {
-        identify = await client.identify()
-      } catch (err) {
-        expect(err).to.not.exist()
-      }
+      const identify = await client.identify()
 
       // close first client
       client.close()
 
       client = new Client(addr2)
-
-      await client.attach()
 
       try {
         await client.connect(identify.peerId, ['addrs'])

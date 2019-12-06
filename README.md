@@ -46,9 +46,6 @@ const Client = require('libp2p-daemon-client')
 const defaultSock = '/tmp/p2pd.sock'
 const client = new Client(defaultSock)
 
-// connect to a daemon
-await client.attach()
-
 // interact with the daemon
 let identify
 try {
@@ -64,7 +61,6 @@ await client.close()
 ## API
 
 * [Getting started](API.md#getting-started)
-* [`attach`](API.md#attach)
 * [`close`](API.md#close)
 * [`connect`](API.md#connect)
 * [`identify`](API.md#identify)
