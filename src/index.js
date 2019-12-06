@@ -19,7 +19,7 @@ class Client {
    */
   constructor (addr) {
     this.multiaddr = addr
-    this.tcp = new TCP({ upgrader: passThroughUpgrader, allowHalfOpen: true })
+    this.tcp = new TCP({ upgrader: passThroughUpgrader })
 
     this.dht = new DHT(this)
     this.pubsub = new Pubsub(this)
