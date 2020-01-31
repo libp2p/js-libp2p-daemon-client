@@ -25,6 +25,10 @@
     "url": "https://github.com/libp2p/js-libp2p-daemon-client/issues"
   },
   "homepage": "https://github.com/libp2p/js-libp2p-daemon-client",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/libp2p/js-libp2p-daemon-client.git"
+  },
   "keywords": [
     "libp2p"
   ],
