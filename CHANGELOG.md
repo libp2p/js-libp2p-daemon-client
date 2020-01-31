@@ -1,3 +1,28 @@
+<a name="0.3.0"></a>
+# [0.3.0](https://github.com/libp2p/js-libp2p-daemon-client/compare/v0.2.2...v0.3.0) (2020-01-31)
+
+
+### Chores
+
+* update deps ([#18](https://github.com/libp2p/js-libp2p-daemon-client/issues/18)) ([61813b9](https://github.com/libp2p/js-libp2p-daemon-client/commit/61813b9))
+
+
+### BREAKING CHANGES
+
+* api changed as attach is not needed anymore
+
+* chore: apply suggestions from code review
+
+Co-Authored-By: Jacob Heun <jacobheun@gmail.com>
+
+* chore: update aegir
+
+* chore: update daemon version
+
+Co-authored-by: Jacob Heun <jacobheun@gmail.com>
+
+
+
 <a name="0.2.2"></a>
 ## [0.2.2](https://github.com/libp2p/js-libp2p-daemon-client/compare/v0.2.1...v0.2.2) (2019-09-05)
 
