@@ -47,7 +47,7 @@
     "err-code": "^2.0.0",
     "it-handshake": "^1.0.1",
     "it-length-prefixed": "^3.0.0",
-    "libp2p-daemon": "libp2p/js-libp2p-daemon#refactor/streams-fix",
+    "libp2p-daemon": "^0.3.0",
     "libp2p-tcp": "^0.14.2",
     "multiaddr": "^7.2.1",
     "peer-id": "~0.13.3",
