@@ -53,8 +53,6 @@ describe('daemon pubsub client', function () {
     it('should get empty list of topics when no subscriptions exist', async () => {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       const topics = await client.pubsub.getTopics()
 
       expect(topics).to.have.lengthOf(0)
@@ -63,8 +61,6 @@ describe('daemon pubsub client', function () {
     it('should get a list with a topic when subscribed', async () => {
       const topic = 'test-topic'
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
 
       await client.pubsub.subscribe(topic)
 
@@ -83,8 +79,6 @@ describe('daemon pubsub client', function () {
       })
 
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
 
       try {
         await client.pubsub.getTopics()
@@ -138,9 +132,6 @@ describe('daemon pubsub client', function () {
       client1 = new Client(defaultMultiaddr)
       client2 = new Client(addr2)
 
-      await client1.attach()
-      await client2.attach()
-
       // identify
       const identify2 = await client2.identify()
 
@@ -177,8 +168,6 @@ describe('daemon pubsub client', function () {
 
       client1 = new Client(defaultMultiaddr)
 
-      await client1.attach()
-
       try {
         await client1.pubsub.publish(topic, data)
         expect.fail('should have thrown')
@@ -193,8 +182,6 @@ describe('daemon pubsub client', function () {
       const data = 'test-data'
 
       client1 = new Client(defaultMultiaddr)
-
-      await client1.attach()
 
       try {
         await client1.pubsub.publish(topic, data)
@@ -218,8 +205,6 @@ describe('daemon pubsub client', function () {
 
       client1 = new Client(defaultMultiaddr)
 
-      await client1.attach()
-
       try {
         await client1.pubsub.publish(topic, data)
         expect.fail('should have thrown')
@@ -235,8 +220,6 @@ describe('daemon pubsub client', function () {
       const topic = Buffer.from('test-topic')
 
       client1 = new Client(defaultMultiaddr)
-
-      await client1.attach()
 
       try {
         await client1.pubsub.subscribe(topic)

@@ -55,8 +55,6 @@ describe('daemon dht client', function () {
     it('should be able to put a value to the dth', async function () {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       try {
         await client.dht.put(key, value)
       } catch (err) {
@@ -68,8 +66,6 @@ describe('daemon dht client', function () {
 
     it('should error if receive an error message', async () => {
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
 
       const stub = sinon.stub(Response, 'decode').returns({
         type: 'ERROR',
@@ -94,8 +90,6 @@ describe('daemon dht client', function () {
     it('should error if receive an invalid key', async function () {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       try {
         await client.dht.put(value, value)
         expect.fail('should have thrown')
@@ -109,8 +103,6 @@ describe('daemon dht client', function () {
 
     it('should error if receive an invalid value', async function () {
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
 
       try {
         await client.dht.put(key, key)
@@ -147,8 +139,6 @@ describe('daemon dht client', function () {
 
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       try {
         await client.dht.put(key, value)
       } catch (err) {
@@ -169,8 +159,6 @@ describe('daemon dht client', function () {
     it('should error if receive an invalid key', async function () {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       try {
         await client.dht.get(Buffer.from('/key'))
         expect('should have thrown')
@@ -182,8 +170,6 @@ describe('daemon dht client', function () {
 
     it('should error if it cannot get a value', async function () {
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
 
       try {
         await client.dht.get('/unavailable-key')
@@ -226,8 +212,6 @@ describe('daemon dht client', function () {
     it('should be able to find a peer', async () => {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       let identify
       try {
         identify = await client.identify()
@@ -239,8 +223,6 @@ describe('daemon dht client', function () {
       await client.close()
 
       client = new Client(addr2)
-
-      await client.attach()
 
       try {
         await client.connect(identify.peerId, identify.addrs)
@@ -263,8 +245,6 @@ describe('daemon dht client', function () {
     it('should error if it gets an invalid peerId', async () => {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       try {
         await client.dht.findPeer('fake-peerId')
         expect.fail('should have thrown')
@@ -277,7 +257,6 @@ describe('daemon dht client', function () {
     it('should error if it cannot find the peer', async () => {
       const peerId = await createPeerId()
       client = new Client(defaultMultiaddr)
-      await client.attach()
 
       try {
         await client.dht.findPeer(peerId)
@@ -311,8 +290,6 @@ describe('daemon dht client', function () {
 
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       try {
         await client.dht.provide(cid)
       } catch (err) {
@@ -324,8 +301,6 @@ describe('daemon dht client', function () {
       const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
 
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
 
       const stub = sinon.stub(Response, 'decode').returns({
         type: 'ERROR',
@@ -347,8 +322,6 @@ describe('daemon dht client', function () {
 
     it('should error if it gets an invalid cid', async () => {
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
 
       try {
         await client.dht.provide('cid')
@@ -381,8 +354,6 @@ describe('daemon dht client', function () {
       const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp39')
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       const findProviders = client.dht.findProviders(cid)
       const providers = []
 
@@ -402,8 +373,6 @@ describe('daemon dht client', function () {
       const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
 
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
 
       let identify
       try {
@@ -432,8 +401,6 @@ describe('daemon dht client', function () {
 
     it('should error if it gets an invalid cid', async () => {
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
 
       try {
         await ends(client.dht.findProviders('cid')).first()
@@ -479,8 +446,6 @@ describe('daemon dht client', function () {
     it('should get an empty array if it does not know any peer', async () => {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       const getClosestPeers = client.dht.getClosestPeers(key)
       const closestPeers = []
 
@@ -495,8 +460,6 @@ describe('daemon dht client', function () {
     it('should be able to get the closest peers', async () => {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       let identify
       try {
         identify = await client.identify()
@@ -508,7 +471,6 @@ describe('daemon dht client', function () {
       await client.close()
 
       client = new Client(addr2)
-      await client.attach()
 
       try {
         await client.connect(identify.peerId, identify.addrs)
@@ -540,7 +502,6 @@ describe('daemon dht client', function () {
     it('should error if it gets an invalid key', async () => {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
       try {
         await ends(client.dht.getClosestPeers(1)).first()
         expect.fail('should have thrown')
@@ -583,8 +544,6 @@ describe('daemon dht client', function () {
     it('should be able to get the public key', async () => {
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       let identify
       try {
         identify = await client.identify()
@@ -596,8 +555,6 @@ describe('daemon dht client', function () {
       await client.close()
 
       client = new Client(addr2)
-
-      await client.attach()
 
       try {
         await client.connect(identify.peerId, identify.addrs)
@@ -620,8 +577,6 @@ describe('daemon dht client', function () {
       const peerId = await createPeerId()
       client = new Client(defaultMultiaddr)
 
-      await client.attach()
-
       try {
         await client.dht.getPublicKey(peerId)
         expect.fail('should have thrown')
@@ -633,8 +588,6 @@ describe('daemon dht client', function () {
 
     it('should error if it receives an invalid peerId', async () => {
       client = new Client(defaultMultiaddr)
-
-      await client.attach()
 
       try {
         await client.dht.getPublicKey('fake-peerId')

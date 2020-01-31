@@ -1,19 +1,16 @@
 'use strict'
 
-const net = require('net')
-const Socket = net.Socket
+const errcode = require('err-code')
+
+const TCP = require('libp2p-tcp')
+const { Request, Response } = require('libp2p-daemon/src/protocol')
+const StreamHandler = require('libp2p-daemon/src/stream-handler')
 const PeerID = require('peer-id')
 const multiaddr = require('multiaddr')
-const { encode, decode } = require('length-prefixed-stream')
-const { Request, Response } = require('libp2p-daemon/src/protocol')
-const errcode = require('err-code')
 
 const DHT = require('./dht')
 const Pubsub = require('./pubsub')
-const { ends } = require('./util/iterator')
-const { multiaddrToNetConfig } = require('./util')
-
-const LIMIT = 1 << 22 // 4MB
+const { passThroughUpgrader } = require('./util')
 
 class Client {
   /**
@@ -22,15 +19,8 @@ class Client {
    */
   constructor (addr) {
     this.multiaddr = addr
-    this.server = null
-    this.socket = new Socket({
-      readable: true,
-      writable: true,
-      allowHalfOpen: true
-    })
-    this.socket.on('error', (_) => {
-      this.close()
-    })
+    this.tcp = new TCP({ upgrader: passThroughUpgrader })
+
     this.dht = new DHT(this)
     this.pubsub = new Pubsub(this)
   }
@@ -38,16 +28,11 @@ class Client {
   /**
    * Connects to a daemon at the unix socket path the daemon
    * was created with
-   * @returns {Promise}
+   * @async
+   * @returns {MultiaddrConnection}
    */
-  attach () {
-    return new Promise((resolve, reject) => {
-      const options = multiaddrToNetConfig(this.multiaddr)
-      this.socket.connect(options, (err) => {
-        if (err) return reject(err)
-        resolve()
-      })
-    })
+  connectDaemon () {
+    return this.tcp.dial(this.multiaddr)
   }
 
   /**
@@ -57,35 +42,28 @@ class Client {
    * @param {function(Stream)} connectionHandler
    * @returns {Promise}
    */
-  async startServer (addr, connectionHandler) {
-    if (this.server) {
-      await this.stopServer()
+  async start (addr, connectionHandler) {
+    if (this.listener) {
+      await this.close()
     }
-    return new Promise((resolve, reject) => {
-      this.server = net.createServer({
-        allowHalfOpen: true
-      }, connectionHandler)
 
-      const options = multiaddrToNetConfig(addr)
-      this.server.listen(options, (err) => {
-        if (err) return reject(err)
-        resolve()
-      })
-    })
+    this.listener = this.tcp.createListener(maConn => connectionHandler(maConn))
+
+    await this.listener.listen(addr)
   }
 
   /**
-   * Closes the net Server if it's running
-   * @returns {Promise}
+   * Sends the request to the daemon and returns a stream. This
+   * should only be used when sending daemon requests.
+   * @param {Request} request A plain request object that will be protobuf encoded
+   * @returns {StreamHandler}
    */
-  stopServer () {
-    return new Promise((resolve) => {
-      if (!this.server) return resolve()
-      this.server.close(() => {
-        this.server = null
-        resolve()
-      })
-    })
+  async send (request) {
+    const maConn = await this.connectDaemon()
+
+    const streamHandler = new StreamHandler({ stream: maConn })
+    streamHandler.write(Request.encode(request))
+    return streamHandler
   }
 
   /**
@@ -93,43 +71,8 @@ class Client {
    * @returns {Promise}
    */
   async close () {
-    await this.stopServer()
-
-    return new Promise((resolve) => {
-      if (this.socket.destroyed) return resolve()
-      this.socket.end(resolve)
-    })
-  }
-
-  /**
-   * Sends the request to the daemon and returns a stream. This
-   * should only be used when sending daemon requests.
-   * @param {Request} request A plain request object that will be protobuf encoded
-   * @returns {Stream}
-   */
-  send (request) {
-    // Decode and pipe the response
-    const dec = decode({ limit: LIMIT, allowEmpty: true })
-    this.socket.pipe(dec)
-
-    // Encode and pipe the request
-    const enc = encode()
-    enc.write(Request.encode(request))
-    enc.pipe(this.socket)
-
-    return ends(dec)
-  }
-
-  /**
-   * A convenience method for writing data to the socket. This
-   * also returns the socket. This should be used when opening
-   * a stream, in order to read data from the peer libp2p node.
-   * @param {Buffer} data
-   * @returns {Socket}
-   */
-  write (data) {
-    this.socket.write(data)
-    return this.socket
+    this.listener && await this.listener.close()
+    this.listener = null
   }
 
   /**
@@ -152,15 +95,15 @@ class Client {
       }
     })
 
-    const request = {
+    const sh = await this.send({
       type: Request.Type.CONNECT,
       connect: {
         peer: peerId.toBytes(),
         addrs: addrs.map((a) => a.buffer)
       }
-    }
+    })
 
-    const message = await this.send(request).first()
+    const message = await sh.read()
     if (!message) {
       throw errcode(new Error('unspecified'), 'ERR_CONNECT_FAILED')
     }
@@ -170,6 +113,8 @@ class Client {
       const errResponse = response.error || {}
       throw errcode(new Error(errResponse.msg || 'unspecified'), 'ERR_CONNECT_FAILED')
     }
+
+    await sh.close()
   }
 
   /**
@@ -183,11 +128,11 @@ class Client {
    * @returns {IdentifyResponse}
    */
   async identify () {
-    const request = {
+    const sh = await this.send({
       type: Request.Type.IDENTIFY
-    }
+    })
 
-    const message = await this.send(request).first()
+    const message = await sh.read()
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
@@ -197,6 +142,8 @@ class Client {
     const peerId = PeerID.createFromBytes(response.identify.id)
     const addrs = response.identify.addrs.map((a) => multiaddr(a))
 
+    await sh.close()
+
     return ({ peerId, addrs })
   }
 
@@ -205,16 +152,18 @@ class Client {
    * @returns {Array.<PeerId>}
    */
   async listPeers () {
-    const request = {
+    const sh = await this.send({
       type: Request.Type.LIST_PEERS
-    }
+    })
 
-    const message = await this.send(request).first()
+    const message = await sh.read()
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
       throw errcode(new Error(response.error.msg), 'ERR_LIST_PEERS_FAILED')
     }
+
+    await sh.close()
 
     return response.peers.map((peer) => PeerID.createFromBytes(peer.id))
   }
@@ -234,22 +183,23 @@ class Client {
       throw errcode(new Error('invalid protocol received'), 'ERR_INVALID_PROTOCOL')
     }
 
-    const request = {
+    const sh = await this.send({
       type: Request.Type.STREAM_OPEN,
       streamOpen: {
         peer: Buffer.from(peerId.toB58String()),
         proto: [protocol]
       }
-    }
+    })
 
-    const message = await this.send(request).first()
+    const message = await sh.read()
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
+      await sh.close()
       throw errcode(new Error(response.error.msg), 'ERR_OPEN_STREAM_FAILED')
     }
 
-    return this.socket
+    return sh.rest()
   }
 
   /**
@@ -267,17 +217,19 @@ class Client {
       throw errcode(new Error('invalid protocol received'), 'ERR_INVALID_PROTOCOL')
     }
 
-    const request = {
+    const sh = await this.send({
       type: Request.Type.STREAM_HANDLER,
       streamOpen: null,
       streamHandler: {
         addr: addr.buffer,
         proto: [protocol]
       }
-    }
+    })
 
-    const message = await this.send(request).first()
+    const message = await sh.read()
     const response = Response.decode(message)
+
+    await sh.close()
 
     if (response.type !== Response.Type.OK) {
       throw errcode(new Error(response.error.msg), 'ERR_REGISTER_STREAM_HANDLER_FAILED')

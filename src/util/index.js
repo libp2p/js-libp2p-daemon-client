@@ -2,6 +2,11 @@
 
 const { resolve } = require('path')
 
+exports.passThroughUpgrader = {
+  upgradeInbound: maConn => maConn,
+  upgradeOutbound: maConn => maConn
+}
+
 /**
  * Converts the multiaddr to a nodejs NET compliant option
  * for .connect or .listen

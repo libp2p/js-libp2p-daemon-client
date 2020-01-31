@@ -6,12 +6,15 @@ const dirtyChai = require('dirty-chai')
 const expect = chai.expect
 chai.use(dirtyChai)
 
-const { decode } = require('length-prefixed-stream')
-const { createDaemon } = require('libp2p-daemon/src/daemon')
-const Client = require('../src')
-const { StreamInfo } = require('libp2p-daemon/src/protocol')
+const pipe = require('it-pipe')
+const { collect, take } = require('streaming-iterables')
+const { toBuffer } = require('it-buffer')
 
-const { ends } = require('../src/util/iterator')
+const Client = require('../src')
+const { createDaemon } = require('libp2p-daemon/src/daemon')
+const { StreamInfo } = require('libp2p-daemon/src/protocol')
+const StreamHandler = require('libp2p-daemon/src/stream-handler')
+
 const { getMultiaddr } = require('./utils')
 const defaultMultiaddr = getMultiaddr('/tmp/p2pd.sock')
 
@@ -70,11 +73,6 @@ describe('daemon stream client', function () {
     clientA = new Client(defaultMultiaddr)
     clientB = new Client(addr2)
 
-    await Promise.all([
-      clientA.attach(),
-      clientB.attach()
-    ])
-
     let identifyA
     try {
       identifyA = await clientA.identify()
@@ -95,37 +93,41 @@ describe('daemon stream client', function () {
       expect(err).to.not.exist()
     }
 
-    const promise = new Promise((resolve) => {
-      clientB.startServer(socketAddr, async (conn) => {
-        // Decode the stream
-        const dec = decode()
-        conn.pipe(dec)
+    clientB.start(socketAddr, async (connection) => {
+      const streamHandler = new StreamHandler({ stream: connection })
 
-        // Read the stream info from the daemon, then pipe to echo
-        const message = await ends(dec).first()
-        const response = StreamInfo.decode(message)
+      // Read the stream info from the daemon, then pipe to echo
+      const message = await streamHandler.read()
+      const response = StreamInfo.decode(message)
 
-        expect(response.peer).to.eql(identifyA.peerId.toBytes())
-        expect(response.proto).to.eql(protocol)
+      expect(response.peer).to.eql(identifyA.peerId.toBytes())
+      expect(response.proto).to.eql(protocol)
 
-        conn.unpipe(dec)
-        conn.end(() => {
-          conn.destroy() // Windows CI was not having the stream properly closed
-          resolve()
-        })
-      })
+      const stream = streamHandler.rest()
+
+      // echo messages
+      pipe(stream, stream)
     })
 
     // register an handler for inboud stream
     await clientB.registerStreamHandler(socketAddr, protocol)
 
     // open an outbound stream in client A and write to it
-    const connA = await clientA.openStream(identifyB.peerId, protocol)
+    const stream = await clientA.openStream(identifyB.peerId, protocol)
 
-    connA.write(data)
-    connA.end()
+    const source = require('it-pushable')()
+    source.push(data)
 
-    return promise
+    const output = await pipe(
+      source,
+      stream,
+      take(1),
+      toBuffer,
+      collect
+    )
+
+    source.end()
+    expect(output).to.eql([data])
   })
 
   it('should error if openStream receives an invalid peerId', async () => {
@@ -144,11 +146,6 @@ describe('daemon stream client', function () {
   it('should error if openStream receives an invalid protocol', async () => {
     clientA = new Client(defaultMultiaddr)
     clientB = new Client(addr2)
-
-    await Promise.all([
-      clientA.attach(),
-      clientB.attach()
-    ])
 
     let identifyA
     try {
