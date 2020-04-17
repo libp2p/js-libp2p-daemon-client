@@ -2,7 +2,6 @@
 
 const CID = require('cids')
 const PeerID = require('peer-id')
-const PeerInfo = require('peer-info')
 const multiaddr = require('multiaddr')
 const errcode = require('err-code')
 
@@ -112,16 +111,10 @@ class DHT {
       throw errcode(new Error(response.error.msg), 'ERR_DHT_FIND_PEER_FAILED')
     }
 
-    const receivedPeerId = PeerID.createFromBytes(response.dht.peer.id)
-    const peerInfo = new PeerInfo(receivedPeerId)
-
-    response.dht.peer.addrs.forEach((addr) => {
-      const ma = multiaddr(addr)
-
-      peerInfo.multiaddrs.add(ma)
-    })
-
-    return peerInfo
+    return {
+      id: PeerID.createFromBytes(response.dht.peer.id),
+      addrs: response.dht.peer.addrs.map((a) => multiaddr(a))
+    }
   }
 
   /**
@@ -193,16 +186,10 @@ class DHT {
 
       // Stream values
       if (response.type === DHTResponse.Type.VALUE) {
-        const peerId = PeerID.createFromBytes(response.peer.id)
-        const peerInfo = new PeerInfo(peerId)
-
-        response.peer.addrs.forEach((addr) => {
-          const ma = multiaddr(addr)
-
-          peerInfo.multiaddrs.add(ma)
-        })
-
-        yield peerInfo
+        yield {
+          id: PeerID.createFromBytes(response.peer.id),
+          addrs: response.peer.addrs.map((a) => multiaddr(a))
+        }
       } else {
         // Unexpected message received
         await sh.close()
@@ -252,7 +239,7 @@ class DHT {
       if (response.type === DHTResponse.Type.VALUE) {
         const peerId = PeerID.createFromBytes(response.value)
 
-        yield new PeerInfo(peerId)
+        yield { id: peerId }
       } else {
         // Unexpected message received
         await sh.close()
