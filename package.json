@@ -42,7 +42,7 @@
     "it-buffer": "^0.1.1",
     "it-pipe": "^1.1.0",
     "it-pushable": "^1.4.0",
-    "mocha": "^7.0.1",
+    "mocha": "^8.0.1",
     "sinon": "^9.0.0",
     "streaming-iterables": "^5.0.2"
   },
