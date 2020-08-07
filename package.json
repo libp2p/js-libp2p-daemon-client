@@ -53,7 +53,7 @@
     "it-length-prefixed": "^3.0.0",
     "libp2p-daemon": "^0.4.0",
     "libp2p-tcp": "^0.14.2",
-    "multiaddr": "^7.2.1",
+    "multiaddr": "^8.0.0",
     "peer-id": "~0.13.3"
   },
   "contributors": [
