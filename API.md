@@ -90,7 +90,7 @@ const client = new Client(defaultSock)
 try {
   await client.connect(peerId, addrs)
 } catch (err) {
-  // 
+  //
 }
 ```
 
@@ -118,7 +118,7 @@ let identify
 try {
   identify = await client.identify()
 } catch (err) {
-  // 
+  //
 }
 ```
 
@@ -145,7 +145,7 @@ let identify
 try {
   identify = await client.identify()
 } catch (err) {
-  // 
+  //
 }
 ```
 
@@ -182,7 +182,7 @@ try {
   //
 }
 
-socket.write(Buffer.from('data'))
+socket.write(uint8ArrayFromString('data'))
 ```
 
 ## registerStreamHandler
@@ -217,8 +217,8 @@ Write a value to a key in the DHT.
 
 | Name | Type | Description |
 |------|------|-------------|
-| key | `String` | key to add to the dht |
-| value | `Buffer` | value to add to the dht |
+| key | `Uint8Array` | key to add to the dht |
+| value | `Uint8Array` | value to add to the dht |
 
 #### Example
 
@@ -226,12 +226,12 @@ Write a value to a key in the DHT.
 const client = new Client(defaultSock)
 
 const key = '/key'
-const value = Buffer.from('oh hello there')
+const value = uint8ArrayFromString('oh hello there')
 
 try {
   await client.dht.put(key, value)
 } catch (err) {
-  // 
+  //
 }
 ```
 
@@ -245,13 +245,13 @@ Query the DHT for a value stored through a key in the DHT.
 
 | Name | Type | Description |
 |------|------|-------------|
-| key | `String` | key to get from the dht |
+| key | `Uint8Array` | key to get from the dht |
 
 #### Returns
 
 | Type | Description |
 |------|-------------|
-| `Buffer` | Value obtained from the DHT |
+| `Uint8Array` | Value obtained from the DHT |
 
 #### Example
 
@@ -264,7 +264,7 @@ let value
 try {
   value = await client.dht.get(key, value)
 } catch (err) {
-  // 
+  //
 }
 ```
 
@@ -296,7 +296,7 @@ let peerInfo
 try {
   peerInfo = await client.dht.findPeer(peerId)
 } catch (err) {
-  // 
+  //
 }
 ```
 
@@ -320,7 +320,7 @@ const client = new Client(defaultSock)
 try {
   await client.dht.provide(cid)
 } catch (err) {
-  // 
+  //
 }
 ```
 
@@ -354,7 +354,7 @@ let peerInfos
 try {
   peerInfos = await client.dht.findProviders(cid)
 } catch (err) {
-  // 
+  //
 }
 ```
 
@@ -368,7 +368,7 @@ Query the DHT routing table for peers that are closest to a provided key.
 
 | Name | Type | Description |
 |------|------|-------------|
-| key | `String` | key to get from the dht |
+| key | `Uint8Array` | key to get from the dht |
 
 #### Returns
 
@@ -387,7 +387,7 @@ let peerInfos
 try {
   peerInfos = await client.dht.getClosestPeers(key)
 } catch (err) {
-  // 
+  //
 }
 ```
 
@@ -419,7 +419,7 @@ let publicKey
 try {
   publicKey = await client.dht.getPublicKey(peerId)
 } catch (err) {
-  // 
+  //
 }
 ```
 
@@ -441,7 +441,7 @@ let topics
 try {
   topics = await client.pubsub.getTopics()
 } catch (err) {
-  // 
+  //
 }
 ```
 
@@ -452,7 +452,7 @@ try {
 | Name | Type | Description |
 |------|------|-------------|
 | topic | `string` | topic to publish |
-| data | `Buffer` | data to publish  |
+| data | `Uint8Array` | data to publish  |
 
 #### Returns
 
@@ -464,13 +464,13 @@ try {
 
 ```js
 const topic = 'topic'
-const data = Buffer.from('data')
+const data = uint8ArrayFromString('data')
 const client = new Client(defaultSock)
 
 try {
   await client.pubsub.publish(topic, data)
 } catch (err) {
-  // 
+  //
 }
 ```
 

@@ -9,6 +9,7 @@ const expect = chai.expect
 chai.use(dirtyChai)
 chai.use(chaiBytes)
 
+const uint8ArrayFromString = require('uint8arrays/from-string')
 const { Response } = require('libp2p-daemon/src/protocol')
 const { createDaemon } = require('libp2p-daemon/src/daemon')
 const Client = require('../src')
@@ -127,7 +128,7 @@ describe('daemon pubsub client', function () {
 
     it('should subscribe to messages and receive them when published', async () => {
       const topic = 'test-topic'
-      const data = Buffer.from('test-data')
+      const data = uint8ArrayFromString('test-data')
 
       client1 = new Client(defaultMultiaddr)
       client2 = new Client(addr2)
@@ -163,8 +164,8 @@ describe('daemon pubsub client', function () {
     })
 
     it('should error if publish receives an invalid topic', async () => {
-      const topic = Buffer.from('test-topic')
-      const data = Buffer.from('test-data')
+      const topic = uint8ArrayFromString('test-topic')
+      const data = uint8ArrayFromString('test-data')
 
       client1 = new Client(defaultMultiaddr)
 
@@ -194,7 +195,7 @@ describe('daemon pubsub client', function () {
 
     it('should error if publish receives an error message', async () => {
       const topic = 'test-topic'
-      const data = Buffer.from('test-data')
+      const data = uint8ArrayFromString('test-data')
 
       const stub = sinon.stub(Response, 'decode').returns({
         type: 'ERROR',
@@ -217,7 +218,7 @@ describe('daemon pubsub client', function () {
     })
 
     it('should error if subscribe receives an invalid topic', async () => {
-      const topic = Buffer.from('test-topic')
+      const topic = uint8ArrayFromString('test-topic')
 
       client1 = new Client(defaultMultiaddr)
 
