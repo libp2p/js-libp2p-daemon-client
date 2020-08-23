@@ -9,6 +9,7 @@ chai.use(dirtyChai)
 chai.use(chaiBytes)
 
 const sinon = require('sinon')
+const uint8ArrayFromString = require('uint8arrays/from-string')
 
 const { createDaemon } = require('libp2p-daemon/src/daemon')
 const Client = require('../src')
@@ -40,8 +41,8 @@ describe('daemon dht client', function () {
     let daemon
     let client
 
-    const key = '/key'
-    const value = Buffer.from('oh hello there')
+    const key = uint8ArrayFromString('/key')
+    const value = uint8ArrayFromString('oh hello there')
 
     before(async function () {
       daemon = await createDaemon(daemonOpts())
@@ -52,7 +53,7 @@ describe('daemon dht client', function () {
       return daemon.stop()
     })
 
-    it('should be able to put a value to the dth', async function () {
+    it('should be able to put a value to the dht', async function () {
       client = new Client(defaultMultiaddr)
 
       try {
@@ -91,7 +92,7 @@ describe('daemon dht client', function () {
       client = new Client(defaultMultiaddr)
 
       try {
-        await client.dht.put(value, value)
+        await client.dht.put(5, value)
         expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
@@ -105,7 +106,7 @@ describe('daemon dht client', function () {
       client = new Client(defaultMultiaddr)
 
       try {
-        await client.dht.put(key, key)
+        await client.dht.put(key, 5)
         expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
@@ -134,8 +135,8 @@ describe('daemon dht client', function () {
     })
 
     it('should be able to get a value from the dth', async function () {
-      const key = '/key'
-      const value = Buffer.from('oh hello there')
+      const key = uint8ArrayFromString('/key')
+      const value = uint8ArrayFromString('oh hello there')
 
       client = new Client(defaultMultiaddr)
 
@@ -160,7 +161,7 @@ describe('daemon dht client', function () {
       client = new Client(defaultMultiaddr)
 
       try {
-        await client.dht.get(Buffer.from('/key'))
+        await client.dht.get(uint8ArrayFromString('/key'))
         expect('should have thrown')
       } catch (err) {
         expect(err).to.exist()
@@ -172,7 +173,7 @@ describe('daemon dht client', function () {
       client = new Client(defaultMultiaddr)
 
       try {
-        await client.dht.get('/unavailable-key')
+        await client.dht.get(uint8ArrayFromString('/unavailable-key'))
         expect.fail('should have thrown')
       } catch (err) {
         expect(err).to.exist()
@@ -418,7 +419,7 @@ describe('daemon dht client', function () {
     let daemonB
     let client
 
-    const key = 'foobar'
+    const key = uint8ArrayFromString('foobar')
 
     before(async function () {
       [daemonA, daemonB] = await Promise.all([

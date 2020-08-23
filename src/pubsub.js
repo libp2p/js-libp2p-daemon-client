@@ -52,8 +52,8 @@ class Pubsub {
       throw errcode(new Error('invalid topic received'), 'ERR_INVALID_TOPIC')
     }
 
-    if (!Buffer.isBuffer(data)) {
-      throw errcode(new Error('data received is not a buffer'), 'ERR_INVALID_DATA')
+    if (!(data instanceof Uint8Array)) {
+      throw errcode(new Error('data received is not a Uint8Array'), 'ERR_INVALID_DATA')
     }
 
     const sh = await this._client.send({

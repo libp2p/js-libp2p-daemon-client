@@ -23,16 +23,16 @@ class DHT {
 
   /**
    * Write a value to a key in the DHT.
-   * @param {String} key
-   * @param {Buffer} value
+   * @param {Uint8Array} key
+   * @param {Uint8Array} value
    */
   async put (key, value) {
-    if (typeof key !== 'string') {
+    if (!(key instanceof Uint8Array)) {
       throw errcode(new Error('invalid key received'), 'ERR_INVALID_KEY')
     }
 
-    if (!Buffer.isBuffer(value)) {
-      throw errcode(new Error('value received is not a buffer'), 'ERR_INVALID_VALUE')
+    if (!(value instanceof Uint8Array)) {
+      throw errcode(new Error('value received is not a Uint8Array'), 'ERR_INVALID_VALUE')
     }
 
     const sh = await this._client.send({
@@ -56,11 +56,11 @@ class DHT {
 
   /**
    * Query the DHT for a value stored at a key in the DHT.
-   * @param {String} key
-   * @returns {Buffer}
+   * @param {Uint8Array} key
+   * @returns {Uint8Array}
    */
   async get (key) {
-    if (typeof key !== 'string') {
+    if (!(key instanceof Uint8Array)) {
       throw errcode(new Error('invalid key received'), 'ERR_INVALID_KEY')
     }
 
@@ -130,7 +130,7 @@ class DHT {
       type: Request.Type.DHT,
       dht: {
         type: DHTRequest.Type.PROVIDE,
-        cid: cid.buffer
+        cid: cid.bytes
       }
     })
 
@@ -159,7 +159,7 @@ class DHT {
       type: Request.Type.DHT,
       dht: {
         type: DHTRequest.Type.FIND_PROVIDERS,
-        cid: cid.buffer,
+        cid: cid.bytes,
         count
       }
     })
@@ -200,11 +200,11 @@ class DHT {
 
   /**
    * Query the DHT routing table for peers that are closest to a provided key.
-   * @param {string} key
+   * @param {Uint8Array} key
    * @returns {Array<PeerInfo>}
    */
   async * getClosestPeers (key) {
-    if (typeof key !== 'string') {
+    if (!(key instanceof Uint8Array)) {
       throw errcode(new Error('invalid key received'), 'ERR_INVALID_KEY')
     }
 

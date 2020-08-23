@@ -9,6 +9,7 @@ chai.use(dirtyChai)
 const pipe = require('it-pipe')
 const { collect, take } = require('streaming-iterables')
 const { toBuffer } = require('it-buffer')
+const uint8ArrayFromString = require('uint8arrays/from-string')
 
 const Client = require('../src')
 const { createDaemon } = require('libp2p-daemon/src/daemon')
@@ -66,7 +67,7 @@ describe('daemon stream client', function () {
   })
 
   it('should be able to open a stream, write to it and a stream handler, should handle the message', async () => {
-    const data = Buffer.from('test-data')
+    const data = uint8ArrayFromString('test-data')
     const protocol = '/protocol/1.0.0'
     const socketAddr = getMultiaddr('/tmp/p2p-protocol-handler.sock', 9091)
 

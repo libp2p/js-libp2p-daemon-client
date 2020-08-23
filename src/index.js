@@ -99,7 +99,7 @@ class Client {
       type: Request.Type.CONNECT,
       connect: {
         peer: peerId.toBytes(),
-        addrs: addrs.map((a) => a.buffer)
+        addrs: addrs.map((a) => a.bytes)
       }
     })
 
@@ -186,7 +186,7 @@ class Client {
     const sh = await this.send({
       type: Request.Type.STREAM_OPEN,
       streamOpen: {
-        peer: Buffer.from(peerId.toB58String()),
+        peer: peerId.toBytes(),
         proto: [protocol]
       }
     })
@@ -221,7 +221,7 @@ class Client {
       type: Request.Type.STREAM_HANDLER,
       streamOpen: null,
       streamHandler: {
-        addr: addr.buffer,
+        addr: addr.bytes,
         proto: [protocol]
       }
     })
