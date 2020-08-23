@@ -1,3 +1,23 @@
+<a name="0.5.0"></a>
+# [0.5.0](https://github.com/libp2p/js-libp2p-daemon-client/compare/v0.4.0...v0.5.0) (2020-08-23)
+
+
+### Bug Fixes
+
+* replace node buffers with uint8arrays ([#42](https://github.com/libp2p/js-libp2p-daemon-client/issues/42)) ([33be887](https://github.com/libp2p/js-libp2p-daemon-client/commit/33be887))
+
+
+### BREAKING CHANGES
+
+* - All deps of this module now use uint8arrays in place of node buffers
+- DHT keys/values are Uint8Arrays, not Strings or Buffers
+
+* chore: bump daemon dep
+
+Co-authored-by: Jacob Heun <jacobheun@gmail.com>
+
+
+
 <a name="0.4.0"></a>
 # [0.4.0](https://github.com/libp2p/js-libp2p-daemon-client/compare/v0.3.1...v0.4.0) (2020-06-08)
 
