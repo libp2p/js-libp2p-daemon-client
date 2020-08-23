@@ -52,7 +52,7 @@
     "err-code": "^2.0.0",
     "it-handshake": "^1.0.1",
     "it-length-prefixed": "^3.0.0",
-    "libp2p-daemon": "libp2p/js-libp2p-daemon#fix/replace-node-streams-with-uint8arrays",
+    "libp2p-daemon": "^0.5.0",
     "libp2p-tcp": "^0.15.1",
     "multiaddr": "^8.0.0",
     "peer-id": "^0.14.0"
