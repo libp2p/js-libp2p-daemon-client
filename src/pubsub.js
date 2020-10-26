@@ -11,8 +11,8 @@ const {
 
 class Pubsub {
   /**
-   * @constructor
-   * @param {Client} client libp2p daemon client instance
+   * @class
+   * @param {Client} client - libp2p daemon client instance
    */
   constructor (client) {
     this._client = client
@@ -20,7 +20,8 @@ class Pubsub {
 
   /**
    * Get a list of topics the node is subscribed to.
-   * @returns {Array<String>} topics
+   *
+   * @returns {Array<string>} topics
    */
   async getTopics () {
     const sh = await this._client.send({
@@ -44,7 +45,8 @@ class Pubsub {
 
   /**
    * Publish data under a topic.
-   * @param {String} topic
+   *
+   * @param {string} topic
    * @param {Buffer} data
    */
   async publish (topic, data) {
@@ -77,7 +79,8 @@ class Pubsub {
 
   /**
    * Request to subscribe a certain topic.
-   * @param {String} topic
+   *
+   * @param {string} topic
    * @returns {Iterator<PSMessage>}
    */
   async subscribe (topic) {

@@ -14,8 +14,8 @@ const {
 
 class DHT {
   /**
-   * @constructor
-   * @param {Client} client libp2p daemon client instance
+   * @class
+   * @param {Client} client - libp2p daemon client instance
    */
   constructor (client) {
     this._client = client
@@ -23,6 +23,7 @@ class DHT {
 
   /**
    * Write a value to a key in the DHT.
+   *
    * @param {Uint8Array} key
    * @param {Uint8Array} value
    */
@@ -56,6 +57,7 @@ class DHT {
 
   /**
    * Query the DHT for a value stored at a key in the DHT.
+   *
    * @param {Uint8Array} key
    * @returns {Uint8Array}
    */
@@ -86,6 +88,7 @@ class DHT {
 
   /**
    * Query the DHT for a given peer's known addresses.
+   *
    * @param {PeerId} peerId
    * @returns {PeerInfo}
    */
@@ -119,6 +122,7 @@ class DHT {
 
   /**
    * Announce to the network that the peer have data addressed by the provided CID
+   *
    * @param {CID} cid
    */
   async provide (cid) {
@@ -146,8 +150,9 @@ class DHT {
 
   /**
    * Query the DHT for peers that have a piece of content, identified by a CID.
+   *
    * @param {CID} cid
-   * @param {number} count number or results to include (default: 1)
+   * @param {number} count - number or results to include (default: 1)
    * @returns {Array<PeerInfo>}
    */
   async * findProviders (cid, count = 1) {
@@ -200,6 +205,7 @@ class DHT {
 
   /**
    * Query the DHT routing table for peers that are closest to a provided key.
+   *
    * @param {Uint8Array} key
    * @returns {Array<PeerInfo>}
    */
@@ -250,6 +256,7 @@ class DHT {
 
   /**
    * Query the DHT routing table for a given peer's public key.
+   *
    * @param {PeerId} peerId
    * @returns {PublicKey}
    */
