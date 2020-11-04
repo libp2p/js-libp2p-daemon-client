@@ -14,8 +14,8 @@ const { passThroughUpgrader } = require('./util')
 
 class Client {
   /**
-   * @constructor
-   * @param {Multiaddr} addr Multiaddr for the client to connect to
+   * @class
+   * @param {Multiaddr} addr - Multiaddr for the client to connect to
    */
   constructor (addr) {
     this.multiaddr = addr
@@ -28,6 +28,7 @@ class Client {
   /**
    * Connects to a daemon at the unix socket path the daemon
    * was created with
+   *
    * @async
    * @returns {MultiaddrConnection}
    */
@@ -38,6 +39,7 @@ class Client {
   /**
    * Starts a server listening at `socketPath`. New connections
    * will be sent to the `connectionHandler`.
+   *
    * @param {Multiaddr} addr
    * @param {function(Stream)} connectionHandler
    * @returns {Promise}
@@ -55,7 +57,8 @@ class Client {
   /**
    * Sends the request to the daemon and returns a stream. This
    * should only be used when sending daemon requests.
-   * @param {Request} request A plain request object that will be protobuf encoded
+   *
+   * @param {Request} request - A plain request object that will be protobuf encoded
    * @returns {StreamHandler}
    */
   async send (request) {
@@ -68,6 +71,7 @@ class Client {
 
   /**
    * Closes the socket
+   *
    * @returns {Promise}
    */
   async close () {
@@ -77,6 +81,7 @@ class Client {
 
   /**
    * Connect requests a connection to a known peer on a given set of addresses
+   *
    * @param {PeerId} peerId
    * @param {Array.<multiaddr>} addrs
    */
@@ -118,13 +123,14 @@ class Client {
   }
 
   /**
-  * @typedef {Object} IdentifyResponse
-  * @property {PeerId} peerId
-  * @property {Array.<multiaddr>} addrs
-  */
+   * @typedef {Object} IdentifyResponse
+   * @property {PeerId} peerId
+   * @property {Array.<multiaddr>} addrs
+   */
 
   /**
    * Identify queries the daemon for its peer ID and listen addresses.
+   *
    * @returns {IdentifyResponse}
    */
   async identify () {
@@ -149,6 +155,7 @@ class Client {
 
   /**
    * Get a list of IDs of peers the node is connected to.
+   *
    * @returns {Array.<PeerId>}
    */
   async listPeers () {
@@ -170,6 +177,7 @@ class Client {
 
   /**
    * Initiate an outbound stream to a peer on one of a set of protocols.
+   *
    * @param {PeerId} peerId
    * @param {string} protocol
    * @returns {Socket} socket
