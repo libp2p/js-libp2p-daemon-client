@@ -1,7 +1,8 @@
 'use strict'
 
 exports.first = async iterator => {
-  for await (const value of iterator) return value
+  const { value } = await iterator.next()
+  return value
 }
 
 exports.last = async iterator => {

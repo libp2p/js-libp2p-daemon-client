@@ -142,13 +142,10 @@ describe('daemon pubsub client', function () {
       const subscribeIterator = await client1.pubsub.subscribe(topic)
 
       const subscriber = async () => {
-        for await (const message of subscribeIterator) {
-          expect(message).to.exist()
-          expect(message.data).to.exist()
-          expect(message.data).to.equalBytes(data)
-
-          return
-        }
+        const { value: message } = await subscribeIterator.next()
+        expect(message).to.exist()
+        expect(message.data).to.exist()
+        expect(message.data).to.equalBytes(data)
       }
 
       const publisher = async () => {
