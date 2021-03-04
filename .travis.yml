@@ -6,7 +6,7 @@ stages:
   - cov
 
 node_js:
-  - '10'
+  - '12'
 
 os:
   - linux
@@ -22,7 +22,6 @@ jobs:
 
     - stage: check
       script:
-        - npx aegir commitlint --travis
         - npx aegir dep-check
         - npm run lint
 
