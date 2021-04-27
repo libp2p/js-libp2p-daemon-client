@@ -2,7 +2,7 @@
 
 const CID = require('cids')
 const PeerID = require('peer-id')
-const multiaddr = require('multiaddr')
+const { Multiaddr } = require('multiaddr')
 const errcode = require('err-code')
 
 const {
@@ -116,7 +116,7 @@ class DHT {
 
     return {
       id: PeerID.createFromBytes(response.dht.peer.id),
-      addrs: response.dht.peer.addrs.map((a) => multiaddr(a))
+      addrs: response.dht.peer.addrs.map((a) => new Multiaddr(a))
     }
   }
 
@@ -193,7 +193,7 @@ class DHT {
       if (response.type === DHTResponse.Type.VALUE) {
         yield {
           id: PeerID.createFromBytes(response.peer.id),
-          addrs: response.peer.addrs.map((a) => multiaddr(a))
+          addrs: response.peer.addrs.map((a) => new Multiaddr(a))
         }
       } else {
         // Unexpected message received

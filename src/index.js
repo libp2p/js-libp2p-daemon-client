@@ -6,7 +6,7 @@ const TCP = require('libp2p-tcp')
 const { Request, Response } = require('libp2p-daemon/src/protocol')
 const StreamHandler = require('libp2p-daemon/src/stream-handler')
 const PeerID = require('peer-id')
-const multiaddr = require('multiaddr')
+const { Multiaddr } = require('multiaddr')
 
 const DHT = require('./dht')
 const Pubsub = require('./pubsub')
@@ -65,7 +65,7 @@ class Client {
     const maConn = await this.connectDaemon()
 
     const streamHandler = new StreamHandler({ stream: maConn })
-    streamHandler.write(Request.encode(request))
+    streamHandler.write(Request.encode(request).finish())
     return streamHandler
   }
 
@@ -95,7 +95,7 @@ class Client {
     }
 
     addrs.forEach((addr) => {
-      if (!multiaddr.isMultiaddr(addr)) {
+      if (!Multiaddr.isMultiaddr(addr)) {
         throw errcode(new Error('received an address that is not a multiaddr'), 'ERR_NO_MULTIADDR_RECEIVED')
       }
     })
@@ -146,7 +146,7 @@ class Client {
     }
 
     const peerId = PeerID.createFromBytes(response.identify.id)
-    const addrs = response.identify.addrs.map((a) => multiaddr(a))
+    const addrs = response.identify.addrs.map((a) => new Multiaddr(a))
 
     await sh.close()
 
@@ -217,7 +217,7 @@ class Client {
    * @param {string} protocol
    */
   async registerStreamHandler (addr, protocol) {
-    if (!multiaddr.isMultiaddr(addr)) {
+    if (!Multiaddr.isMultiaddr(addr)) {
       throw errcode(new Error('invalid multiaddr received'), 'ERR_INVALID_MULTIADDR')
     }
 
