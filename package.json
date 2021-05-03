@@ -47,7 +47,7 @@
     "err-code": "^3.0.1",
     "it-handshake": "^2.0.0",
     "it-length-prefixed": "^5.0.2",
-    "libp2p-daemon": "libp2p/js-libp2p-daemon#chore/update-libp2p-0.31",
+    "libp2p-daemon": "^0.6.0",
     "libp2p-tcp": "^0.15.4",
     "multiaddr": "^9.0.0",
     "peer-id": "^0.14.8"
