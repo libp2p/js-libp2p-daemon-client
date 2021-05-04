@@ -1,11 +1,7 @@
 /* eslint-env mocha */
 'use strict'
 
-const chai = require('chai')
-const dirtyChai = require('dirty-chai')
-const expect = chai.expect
-chai.use(dirtyChai)
-chai.use(require('chai-as-promised'))
+const { expect } = require('aegir/utils/chai')
 const sinon = require('sinon')
 
 const { createDaemon } = require('libp2p-daemon/src/daemon')

@@ -1,13 +1,8 @@
 /* eslint-env mocha */
 'use strict'
 
-const chai = require('chai')
+const { expect } = require('aegir/utils/chai')
 const sinon = require('sinon')
-const dirtyChai = require('dirty-chai')
-const chaiBytes = require('chai-bytes')
-const expect = chai.expect
-chai.use(dirtyChai)
-chai.use(chaiBytes)
 
 const uint8ArrayFromString = require('uint8arrays/from-string')
 const { Response } = require('libp2p-daemon/src/protocol')
