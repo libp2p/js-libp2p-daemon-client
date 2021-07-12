@@ -50,7 +50,7 @@
     "libp2p-daemon": "^0.6.0",
     "libp2p-tcp": "^0.15.4",
     "multiaddr": "^9.0.0",
-    "peer-id": "^0.14.8"
+    "peer-id": "^0.15.1"
   },
   "contributors": [
     "Vasco Santos <vasco.santos@moxy.studio>",
