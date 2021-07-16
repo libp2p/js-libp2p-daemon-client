@@ -11,7 +11,7 @@ const Client = require('../src')
 const { ends } = require('../src/util/iterator')
 const { Response } = require('libp2p-daemon/src/protocol')
 
-const CID = require('cids')
+const { CID } = require('multiformats/cid')
 
 const { getMultiaddr, createPeerId } = require('./utils')
 const defaultMultiaddr = getMultiaddr('/tmp/p2pd.sock')
@@ -282,7 +282,7 @@ describe('daemon dht client', function () {
     })
 
     it('should be able to provide', async () => {
-      const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
+      const cid = CID.parse('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
 
       client = new Client(defaultMultiaddr)
 
@@ -294,7 +294,7 @@ describe('daemon dht client', function () {
     })
 
     it('should error if receive an error message', async () => {
-      const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
+      const cid = CID.parse('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
 
       client = new Client(defaultMultiaddr)
 
@@ -347,7 +347,7 @@ describe('daemon dht client', function () {
     })
 
     it('should error if no provider for the cid exists', async () => {
-      const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp39')
+      const cid = CID.parse('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp39')
       client = new Client(defaultMultiaddr)
 
       const findProviders = client.dht.findProviders(cid)
@@ -366,7 +366,7 @@ describe('daemon dht client', function () {
     })
 
     it('should be able to find providers', async () => {
-      const cid = new CID('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
+      const cid = CID.parse('QmVzw6MPsF96TyXBSRs1ptLoVMWRv5FCYJZZGJSVB2Hp38')
 
       client = new Client(defaultMultiaddr)
 

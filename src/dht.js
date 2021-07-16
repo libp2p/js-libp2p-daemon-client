@@ -1,6 +1,6 @@
 'use strict'
 
-const CID = require('cids')
+const { CID } = require('multiformats/cid')
 const PeerID = require('peer-id')
 const { Multiaddr } = require('multiaddr')
 const errcode = require('err-code')
@@ -126,7 +126,8 @@ class DHT {
    * @param {CID} cid
    */
   async provide (cid) {
-    if (!CID.isCID(cid)) {
+    cid = CID.asCID(cid)
+    if (!cid) {
       throw errcode(new Error('invalid cid received'), 'ERR_INVALID_CID')
     }
 
@@ -156,7 +157,9 @@ class DHT {
    * @returns {Array<PeerInfo>}
    */
   async * findProviders (cid, count = 1) {
-    if (!CID.isCID(cid)) {
+    cid = CID.asCID(cid)
+
+    if (!cid) {
       throw errcode(new Error('invalid cid received'), 'ERR_INVALID_CID')
     }
 
