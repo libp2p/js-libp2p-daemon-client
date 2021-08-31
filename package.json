@@ -38,7 +38,7 @@
     "it-pipe": "^1.1.0",
     "it-pushable": "^1.4.0",
     "mocha": "^9.1.1",
-    "sinon": "^10.0.0",
+    "sinon": "^11.1.2",
     "streaming-iterables": "^5.0.3",
     "uint8arrays": "^2.1.5"
   },
