@@ -5,7 +5,7 @@ const { expect } = require('aegir/utils/chai')
 const pipe = require('it-pipe')
 const { collect, take } = require('streaming-iterables')
 const { toBuffer } = require('it-buffer')
-const uint8ArrayFromString = require('uint8arrays/from-string')
+const { fromString: uint8ArrayFromString } = require('uint8arrays/from-string')
 
 const Client = require('../src')
 const { createDaemon } = require('libp2p-daemon/src/daemon')

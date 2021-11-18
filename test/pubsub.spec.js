@@ -4,7 +4,7 @@
 const { expect } = require('aegir/utils/chai')
 const sinon = require('sinon')
 
-const uint8ArrayFromString = require('uint8arrays/from-string')
+const { fromString: uint8ArrayFromString } = require('uint8arrays/from-string')
 const { Response } = require('libp2p-daemon/src/protocol')
 const { createDaemon } = require('libp2p-daemon/src/daemon')
 const Client = require('../src')
