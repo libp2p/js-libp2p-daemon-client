@@ -18,7 +18,7 @@
     "release-major": "aegir release --type major -t node"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=15.0.0"
   },
   "bugs": {
     "url": "https://github.com/libp2p/js-libp2p-daemon-client/issues"
@@ -49,11 +49,11 @@
     "err-code": "^3.0.1",
     "it-handshake": "^2.0.0",
     "it-length-prefixed": "^5.0.2",
-    "libp2p-daemon": "^0.8.0",
+    "libp2p-daemon": "^0.9.0",
     "libp2p-tcp": "^0.17.1",
     "multiaddr": "^10.0.0",
     "multiformats": "^9.4.2",
-    "peer-id": "^0.15.1"
+    "peer-id": "^0.16.0"
   },
   "contributors": [
     "Vasco Santos <vasco.santos@moxy.studio>",
