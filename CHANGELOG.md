@@ -1,3 +1,17 @@
+# [0.10.0](https://github.com/libp2p/js-libp2p-daemon-client/compare/v0.9.0...v0.10.0) (2021-12-29)
+
+
+### chore
+
+* update deps ([#103](https://github.com/libp2p/js-libp2p-daemon-client/issues/103)) ([cdbc4b2](https://github.com/libp2p/js-libp2p-daemon-client/commit/cdbc4b22f3599f33911be1b406b02d06515389b8))
+
+
+### BREAKING CHANGES
+
+* only node15+ is supported
+
+
+
 # [0.9.0](https://github.com/libp2p/js-libp2p-daemon-client/compare/v0.7.0...v0.9.0) (2021-11-18)
 
 
