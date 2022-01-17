@@ -1,3 +1,17 @@
+# [0.11.0](https://github.com/libp2p/js-libp2p-daemon-client/compare/v0.10.0...v0.11.0) (2022-01-17)
+
+
+### Features
+
+* async peerstore ([#110](https://github.com/libp2p/js-libp2p-daemon-client/issues/110)) ([41dc8a5](https://github.com/libp2p/js-libp2p-daemon-client/commit/41dc8a59ce14447b9b5ab7ba9930f4140bda3652))
+
+
+### BREAKING CHANGES
+
+* peerstore methods are now all async
+
+
+
 # [0.10.0](https://github.com/libp2p/js-libp2p-daemon-client/compare/v0.9.0...v0.10.0) (2021-12-29)
 
 
