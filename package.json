@@ -42,7 +42,7 @@
     "os": "^0.1.2",
     "path": "^0.12.7",
     "sinon": "^12.0.1",
-    "streaming-iterables": "^6.0.0",
+    "streaming-iterables": "^7.0.4",
     "uint8arrays": "^3.0.0"
   },
   "dependencies": {
