@@ -1,6 +1,6 @@
 'use strict'
 
-const errcode = require('err-code')
+const { CodeError } = require('@libp2p/interfaces/errors')
 
 const {
   Request,
@@ -37,7 +37,7 @@ class Pubsub {
     await sh.close()
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error.msg), 'ERR_PUBSUB_GET_TOPICS_FAILED')
+      throw new CodeError(response.error.msg, 'ERR_PUBSUB_GET_TOPICS_FAILED')
     }
 
     return response.pubsub.topics
@@ -51,11 +51,11 @@ class Pubsub {
    */
   async publish (topic, data) {
     if (typeof topic !== 'string') {
-      throw errcode(new Error('invalid topic received'), 'ERR_INVALID_TOPIC')
+      throw new CodeError('invalid topic received', 'ERR_INVALID_TOPIC')
     }
 
     if (!(data instanceof Uint8Array)) {
-      throw errcode(new Error('data received is not a Uint8Array'), 'ERR_INVALID_DATA')
+      throw new CodeError('data received is not a Uint8Array', 'ERR_INVALID_DATA')
     }
 
     const sh = await this._client.send({
@@ -73,7 +73,7 @@ class Pubsub {
     await sh.close()
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error.msg), 'ERR_PUBSUB_PUBLISH_FAILED')
+      throw new CodeError(response.error.msg, 'ERR_PUBSUB_PUBLISH_FAILED')
     }
   }
 
@@ -85,7 +85,7 @@ class Pubsub {
    */
   async subscribe (topic) {
     if (typeof topic !== 'string') {
-      throw errcode(new Error('invalid topic received'), 'ERR_INVALID_TOPIC')
+      throw new CodeError('invalid topic received', 'ERR_INVALID_TOPIC')
     }
 
     const sh = await this._client.send({
@@ -100,7 +100,7 @@ class Pubsub {
     let response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error.msg), 'ERR_PUBSUB_PUBLISH_FAILED')
+      throw new CodeError(response.error.msg, 'ERR_PUBSUB_PUBLISH_FAILED')
     }
 
     // stream messages
