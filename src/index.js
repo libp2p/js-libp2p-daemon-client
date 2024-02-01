@@ -1,6 +1,6 @@
 'use strict'
 
-const errcode = require('err-code')
+const { CodeError } = require('@libp2p/interfaces/errors')
 
 const TCP = require('libp2p-tcp')
 const { Request, Response } = require('libp2p-daemon/src/protocol')
@@ -87,16 +87,16 @@ class Client {
    */
   async connect (peerId, addrs) {
     if (!PeerID.isPeerId(peerId)) {
-      throw errcode(new Error('invalid peer id received'), 'ERR_INVALID_PEER_ID')
+      throw new CodeError('invalid peer id received', 'ERR_INVALID_PEER_ID')
     }
 
     if (!Array.isArray(addrs)) {
-      throw errcode(new Error('addrs received are not in an array'), 'ERR_INVALID_ADDRS_TYPE')
+      throw new CodeError('addrs received are not in an array', 'ERR_INVALID_ADDRS_TYPE')
     }
 
     addrs.forEach((addr) => {
       if (!Multiaddr.isMultiaddr(addr)) {
-        throw errcode(new Error('received an address that is not a multiaddr'), 'ERR_NO_MULTIADDR_RECEIVED')
+        throw new CodeError('received an address that is not a multiaddr', 'ERR_NO_MULTIADDR_RECEIVED')
       }
     })
 
@@ -110,13 +110,13 @@ class Client {
 
     const message = await sh.read()
     if (!message) {
-      throw errcode(new Error('unspecified'), 'ERR_CONNECT_FAILED')
+      throw new CodeError('unspecified', 'ERR_CONNECT_FAILED')
     }
 
     const response = Response.decode(message)
     if (response.type !== Response.Type.OK) {
       const errResponse = response.error || {}
-      throw errcode(new Error(errResponse.msg || 'unspecified'), 'ERR_CONNECT_FAILED')
+      throw new CodeError(errResponse.msg || 'unspecified', 'ERR_CONNECT_FAILED')
     }
 
     await sh.close()
@@ -142,7 +142,7 @@ class Client {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error.msg), 'ERR_IDENTIFY_FAILED')
+      throw new CodeError(response.error.msg, 'ERR_IDENTIFY_FAILED')
     }
 
     const peerId = PeerID.createFromBytes(response.identify.id)
@@ -167,7 +167,7 @@ class Client {
     const response = Response.decode(message)
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error.msg), 'ERR_LIST_PEERS_FAILED')
+      throw new CodeError(response.error.msg, 'ERR_LIST_PEERS_FAILED')
     }
 
     await sh.close()
@@ -184,11 +184,11 @@ class Client {
    */
   async openStream (peerId, protocol) {
     if (!PeerID.isPeerId(peerId)) {
-      throw errcode(new Error('invalid peer id received'), 'ERR_INVALID_PEER_ID')
+      throw new CodeError('invalid peer id received', 'ERR_INVALID_PEER_ID')
     }
 
     if (typeof protocol !== 'string') {
-      throw errcode(new Error('invalid protocol received'), 'ERR_INVALID_PROTOCOL')
+      throw new CodeError('invalid protocol received', 'ERR_INVALID_PROTOCOL')
     }
 
     const sh = await this.send({
@@ -204,7 +204,7 @@ class Client {
 
     if (response.type !== Response.Type.OK) {
       await sh.close()
-      throw errcode(new Error(response.error.msg), 'ERR_OPEN_STREAM_FAILED')
+      throw new CodeError(response.error.msg, 'ERR_OPEN_STREAM_FAILED')
     }
 
     return sh.rest()
@@ -218,11 +218,11 @@ class Client {
    */
   async registerStreamHandler (addr, protocol) {
     if (!Multiaddr.isMultiaddr(addr)) {
-      throw errcode(new Error('invalid multiaddr received'), 'ERR_INVALID_MULTIADDR')
+      throw new CodeError('invalid multiaddr received', 'ERR_INVALID_MULTIADDR')
     }
 
     if (typeof protocol !== 'string') {
-      throw errcode(new Error('invalid protocol received'), 'ERR_INVALID_PROTOCOL')
+      throw new CodeError('invalid protocol received', 'ERR_INVALID_PROTOCOL')
     }
 
     const sh = await this.send({
@@ -240,7 +240,7 @@ class Client {
     await sh.close()
 
     if (response.type !== Response.Type.OK) {
-      throw errcode(new Error(response.error.msg), 'ERR_REGISTER_STREAM_HANDLER_FAILED')
+      throw new CodeError(response.error.msg, 'ERR_REGISTER_STREAM_HANDLER_FAILED')
     }
   }
 }
